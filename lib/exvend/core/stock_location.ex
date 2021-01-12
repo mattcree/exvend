@@ -1,11 +1,11 @@
-defmodule StockLocation do
+defmodule Exvend.Core.StockLocation do
   @moduledoc false
 
   defstruct ~w[stock_code price stock]a
 
   def new(stock_code, price) do
     %__MODULE__{
-      stock_code: id,
+      stock_code: stock_code,
       price: price,
       stock: []
     }

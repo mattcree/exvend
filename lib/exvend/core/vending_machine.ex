@@ -1,4 +1,4 @@
-defmodule VendingMachine do
+defmodule Exvend.Core.VendingMachine do
   @moduledoc false
 
   defstruct ~w[coin_acceptor inventory]a
@@ -10,8 +10,8 @@ defmodule VendingMachine do
     }
   end
 
-  def add_stock_location(%__MODULE__{inventory: inventory} = machine, stock_code, price) do
-    Inventory.add_stock_location(inventory, stock_code, price) |> maybe_update_inventory(machine)
+  def create_stock_location(%__MODULE__{inventory: inventory} = machine, stock_code, price) do
+    Inventory.create_stock_location(inventory, stock_code, price) |> maybe_update_inventory(machine)
   end
 
   def add_stock(%__MODULE__{inventory: inventory} = machine, stock_code, item) do

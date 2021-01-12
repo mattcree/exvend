@@ -1,4 +1,4 @@
-defmodule CoinAcceptor do
+defmodule Exvend.Core.CoinAcceptor do
   @moduledoc false
 
   defstruct ~w[allowed available inserted]a
