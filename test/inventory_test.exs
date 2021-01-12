@@ -25,8 +25,7 @@ defmodule InventoryTest do
   test "should return error when creating stock location that exists", %{inventory: inventory} do
     assert Map.get(inventory, @stock_code) == nil
 
-    {_, updated_inventory} = inventory |> Inventory.create_stock_location(@stock_code, @price)
-    error = updated_inventory |> Inventory.create_stock_location(@stock_code, @price)
+    error = inventory |> Inventory.create_stock_location(@stock_code, @price) |> Inventory.create_stock_location(@stock_code, @price)
 
     assert error == {:error, :inventory_location, @stock_code, :already_exists}
   end
