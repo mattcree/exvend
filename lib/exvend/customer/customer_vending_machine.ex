@@ -4,11 +4,8 @@ defmodule Exvend.Customer.CustomerVendingMachine do
   @moduledoc false
 
   def insert_coins(%VendingMachine{coin_acceptor: coin_acceptor} = machine, coins) do
-    case CoinAcceptor.invalid_coins(coin_acceptor, coins) do
-      [] ->
-        {:ok, VendingMachine.update_coin_acceptor(machine, CoinAcceptor.insert_coins(coin_acceptor, coins))}
-      invalid ->
-        {:error, invalid, :coins, :not, :accepted, :returning, coins}
-    end
+    {valid, invalid} = CoinAcceptor.sort_coins(coin_acceptor, coins)
+    updated_machine = machine |> VendingMachine.update_coin_acceptor(CoinAcceptor.insert_coins(coin_acceptor, valid))
+    {{:returned, invalid, :inserted, valid}, updated_machine}
   end
 end

@@ -26,7 +26,7 @@ defmodule CoinAcceptorTest do
   end
 
   test "should configure float", %{coin_acceptor: coin_acceptor} do
-    configured_coin_acceptor = coin_acceptor |> CoinAcceptor.configure_float(@float)
+    configured_coin_acceptor = coin_acceptor |> CoinAcceptor.fill_float(@float)
 
     assert configured_coin_acceptor.float == @float
   end
@@ -45,7 +45,7 @@ defmodule CoinAcceptorTest do
     configured_coin_acceptor = coin_acceptor |> CoinAcceptor.configure_coin_set(@coin_set)
 
     updated_coin_acceptor = configured_coin_acceptor
-            |> CoinAcceptor.configure_float(@float)
+            |> CoinAcceptor.fill_float(@float)
             |> CoinAcceptor.insert_coins(@coins)
             |> CoinAcceptor.accept_coins
 
@@ -66,5 +66,9 @@ defmodule CoinAcceptorTest do
     invalid_coins = configured_coin_acceptor |> CoinAcceptor.invalid_coins(@valid_coins)
 
     assert invalid_coins == []
+  end
+
+  test "should calculate change", %{coin_acceptor: coin_acceptor} do
+
   end
 end

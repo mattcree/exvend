@@ -15,8 +15,12 @@ defmodule Exvend.Core.CoinAcceptor do
     %__MODULE__{coin_acceptor | coin_set: MapSet.new(coin_set)}
   end
 
-  def configure_float(%__MODULE__{} = coin_acceptor, float) when is_list(float) do
-    %__MODULE__{coin_acceptor | float: float}
+  def fill_float(%__MODULE__{float: float} = coin_acceptor, new_float) when is_list(float) do
+    %__MODULE__{coin_acceptor | float: float ++ new_float}
+  end
+
+  def empty_float(%__MODULE__{} = coin_acceptor) do
+    %__MODULE__{coin_acceptor | float: []}
   end
 
   def insert_coins(%__MODULE__{inserted: inserted} = coin_acceptor, coins) when is_list(coins) do
@@ -27,7 +31,16 @@ defmodule Exvend.Core.CoinAcceptor do
     %__MODULE__{coin_acceptor | float: float ++ inserted, inserted: []}
   end
 
+  def valid_coins(%__MODULE__{coin_set: coin_set}, coins) when is_list(coins) do
+    MapSet.difference(coin_set, MapSet.new(coins)) |> MapSet.to_list
+  end
+
   def invalid_coins(%__MODULE__{coin_set: coin_set}, coins) when is_list(coins) do
     MapSet.difference(MapSet.new(coins), coin_set) |> MapSet.to_list
+  end
+
+  def sort_coins(%__MODULE__{coin_set: coin_set}, coins) when is_list(coins) do
+    coins
+    |> Enum.split_with(&(MapSet.member?(coin_set, &1)))
   end
 end

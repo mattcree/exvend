@@ -24,30 +24,49 @@ defmodule CustomerVendingMachineTest do
     {:ok, machine: machine}
   end
 
-  test "should be able to vend selected product and receive change", %{machine: machine} do
+  test "should insert valid coins", %{machine: machine} do
+    {message, updated_machine} = machine |> CustomerVendingMachine.insert_coins(@valid_coins)
+
+    assert message == {:returned, [], :inserted, @valid_coins}
+    assert updated_machine.coin_acceptor.inserted == @valid_coins
   end
+
+  test "should return invalid coins", %{machine: machine} do
+    {message, machine} = machine |> CustomerVendingMachine.insert_coins(@invalid_coins)
+
+    assert message == {:returned, @invalid_coins, :inserted, []}
+  end
+
+  test "should return any invalid coins and insert valid coins", %{machine: machine} do
+    {message, machine} = machine |> CustomerVendingMachine.insert_coins(@mixed_invalid_coins)
+
+    assert message == {:returned, [3, 4], :inserted, [1, 2, 5, 10]}
+  end
+
+  test "should be able to vend selected product and receive change", %{machine: machine} do
+
+  end
+
+  test "should be able to cancel vending and receive coins" do
+
+  end
+
 
   test "should return error when change cannot be made" do
 
   end
 
-  test "should return error when selection is invalid" do
+  test "should return error when selected stock code not found" do
 
   end
 
-  test "should be able to insert valid coins", %{machine: machine} do
-    {:ok, updated_machine} = CustomerVendingMachine.insert_coins(machine, @valid_coins)
 
-    assert updated_machine.coin_acceptor.inserted == @valid_coins
+
+  test "should ask for more coins when vending with too few inserted coins" do
+
   end
 
-  test "should return error when invalid coin entered", %{machine: machine} do
-    error = CustomerVendingMachine.insert_coins(machine, @mixed_invalid_coins)
-
-    assert error == {:error, @invalid_coins, :coins, :not, :accepted, :returning, @mixed_invalid_coins}
-  end
-
-  test "should be able to cancel vending and receive coins" do
+  test "should not vend when not enough change and return change" do
 
   end
 end
