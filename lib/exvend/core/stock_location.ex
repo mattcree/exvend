@@ -1,21 +1,24 @@
 defmodule Exvend.Core.StockLocation do
   @moduledoc false
 
-  defstruct ~w[stock_code price stock]a
+  defstruct ~w[price stock]a
 
-  def new(stock_code, price) do
+  def new(price) do
     %__MODULE__{
-      stock_code: stock_code,
       price: price,
       stock: []
     }
   end
 
-  def add_stock(%__MODULE__{stock: stock} = location, item) do
-    %__MODULE__{location | stock: [item | stock]}
+  def add_stock(%__MODULE__{stock: stock} = location, new_stock) do
+    %__MODULE__{location | stock: [new_stock | stock]}
   end
 
-  def remove_stock(%__MODULE__{stock: stock} = location, item) do
-    %__MODULE__{location | stock: List.delete(stock, item)}
+  def remove_stock(%__MODULE__{stock: stock} = location, new_stock) do
+    %__MODULE__{location | stock: List.delete(stock, new_stock)}
+  end
+
+  def update_price(%__MODULE__{} = location, price) do
+    %__MODULE__{location | price: price}
   end
 end

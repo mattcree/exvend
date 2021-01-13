@@ -9,12 +9,12 @@ defmodule StockLocationTest do
   @stock_name "Cola"
 
   setup do
-    {:ok, stock_location: StockLocation.new(@stock_code, @price)}
+    {:ok, stock_location: StockLocation.new(@price)}
   end
 
   test "should create new stock location", %{stock_location: stock_location} do
-    assert stock_location.stock_code == @stock_code
     assert stock_location.price == @price
+    assert stock_location.stock == []
   end
 
   test "should be able to add stock", %{stock_location: stock_location} do

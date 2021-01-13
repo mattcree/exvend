@@ -1,33 +1,21 @@
 defmodule Exvend.Core.Inventory do
-  alias Exvend.Core.StockLocation
   @moduledoc false
+
+  alias Exvend.Core.StockLocation
 
   def new do
     Map.new()
   end
 
-  def create_stock_location(inventory, stock_code, price) do
-    case Map.get(inventory, stock_code) do
-      nil ->
-        Map.put(inventory, stock_code, StockLocation.new(stock_code, price))
-      _ ->
-        {:error, :inventory_location, stock_code, :already_exists}
-    end
+  def create_stock_location(inventory, stock_code, %StockLocation{} = stock_location) do
+    Map.put(inventory, stock_code, stock_location)
   end
 
-  def add_stock(inventory, stock_code, name) do
-    try do
-      Map.update!(inventory, stock_code, &(StockLocation.add_stock(&1, name)))
-    rescue
-      KeyError -> {:error, :inventory_location, stock_code, :not_found}
-    end
+  def get_stock_location(inventory, stock_code) do
+    Map.get(inventory, stock_code)
   end
 
-  def remove_stock(inventory, stock_code, name) do
-    try do
-      Map.update!(inventory, stock_code, &(StockLocation.remove_stock(&1, name)))
-    rescue
-      KeyError -> {:error, :inventory_location, stock_code, :not_found}
-    end
+  def update_stock_location(inventory, stock_code, %StockLocation{} = stock_location) do
+    Map.replace(inventory, stock_code, stock_location)
   end
 end

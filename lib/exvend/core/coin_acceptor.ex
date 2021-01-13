@@ -1,29 +1,33 @@
 defmodule Exvend.Core.CoinAcceptor do
   @moduledoc false
 
-  defstruct ~w[allowed available inserted]a
+  defstruct ~w[coin_set float inserted]a
 
   def new do
     %__MODULE__{
-      allowed: MapSet.new(),
-      available: [],
+      coin_set: MapSet.new(),
+      float: [],
       inserted: []
     }
   end
 
-  def configure_allowed(%__MODULE__{} = coins, allowed) when is_map(allowed) do
-    %__MODULE__{coins | allowed: allowed}
+  def configure_coin_set(%__MODULE__{} = coin_acceptor, coin_set) when is_list(coin_set) do
+    %__MODULE__{coin_acceptor | coin_set: MapSet.new(coin_set)}
   end
 
-  def insert_coin(%__MODULE__{inserted: inserted} = coins, coin) when is_integer(coin) do
-    %__MODULE__{coins | inserted: [coin | inserted]}
+  def configure_float(%__MODULE__{} = coin_acceptor, float) when is_list(float) do
+    %__MODULE__{coin_acceptor | float: float}
   end
 
-  def accept_coins(%__MODULE__{available: available, inserted: inserted} = coins) do
-    %__MODULE__{coins | available: available ++ inserted, inserted: []}
+  def insert_coins(%__MODULE__{inserted: inserted} = coin_acceptor, coins) when is_list(coins) do
+    %__MODULE__{coin_acceptor | inserted: coins ++ inserted}
   end
 
-  def is_acceptable?(%__MODULE__{allowed: allowed}, coin) when is_integer(coin) do
-    MapSet.member?(allowed, coin)
+  def accept_coins(%__MODULE__{float: float, inserted: inserted} = coin_acceptor) do
+    %__MODULE__{coin_acceptor | float: float ++ inserted, inserted: []}
+  end
+
+  def invalid_coins(%__MODULE__{coin_set: coin_set}, coins) when is_list(coins) do
+    MapSet.difference(MapSet.new(coins), coin_set) |> MapSet.to_list
   end
 end
