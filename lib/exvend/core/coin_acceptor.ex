@@ -27,20 +27,15 @@ defmodule Exvend.Core.CoinAcceptor do
     %__MODULE__{coin_acceptor | inserted: coins ++ inserted}
   end
 
+  def empty_inserted_coins(%__MODULE__{} = coin_acceptor) do
+    %__MODULE__{coin_acceptor | inserted: []}
+  end
+
   def accept_coins(%__MODULE__{float: float, inserted: inserted} = coin_acceptor) do
     %__MODULE__{coin_acceptor | float: float ++ inserted, inserted: []}
   end
 
-  def valid_coins(%__MODULE__{coin_set: coin_set}, coins) when is_list(coins) do
-    MapSet.difference(coin_set, MapSet.new(coins)) |> MapSet.to_list
-  end
-
-  def invalid_coins(%__MODULE__{coin_set: coin_set}, coins) when is_list(coins) do
-    MapSet.difference(MapSet.new(coins), coin_set) |> MapSet.to_list
-  end
-
   def sort_coins(%__MODULE__{coin_set: coin_set}, coins) when is_list(coins) do
-    coins
-    |> Enum.split_with(&(MapSet.member?(coin_set, &1)))
+    coins |> Enum.split_with(&(MapSet.member?(coin_set, &1)))
   end
 end
