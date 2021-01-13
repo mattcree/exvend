@@ -40,7 +40,7 @@ defmodule ServiceEngineerVendingMachineTest do
     assert message == {:created, @stock_code}
   end
 
-  test "should inform when stock location exists", %{machine: machine} do
+  test "should inform when stock location already exists when creating a new stock location", %{machine: machine} do
     {_, with_existing_location} = machine |> ServiceEngineerVendingMachine.create_stock_location(@stock_code, @price)
     {message, _} = with_existing_location |> ServiceEngineerVendingMachine.create_stock_location(@stock_code, @price)
 
@@ -54,10 +54,22 @@ defmodule ServiceEngineerVendingMachineTest do
     assert message == {:added, @stock_item}
   end
 
+  test "should inform when stock location does not exist when adding stock", %{machine: machine} do
+    {message, _} = machine |> ServiceEngineerVendingMachine.add_stock(@stock_code, @stock_item)
+
+    assert message == {:not_found, @stock_code}
+  end
+
   test "should be able to remove stock", %{machine: machine} do
     {_, with_stock_location} = machine |> ServiceEngineerVendingMachine.create_stock_location(@stock_code, @price)
     {message, _} = with_stock_location |> ServiceEngineerVendingMachine.remove_stock(@stock_code, @stock_item)
 
     assert message == {:removed, @stock_item}
+  end
+
+  test "should inform when stock location does not exist when removing stock", %{machine: machine} do
+    {message, _} = machine |> ServiceEngineerVendingMachine.remove_stock(@stock_code, @stock_item)
+
+    assert message == {:not_found, @stock_code}
   end
 end

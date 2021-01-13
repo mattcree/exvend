@@ -8,7 +8,7 @@ defmodule CoinAcceptorTest do
   @float [3, 3, 3, 6, 6, 6, 5, 5, 5, 9, 9, 9]
   @valid_coins [3, 6, 5, 9]
   @invalid_coins [4, 7, 8]
-  @mixed_coins @valid_coins ++ @invalid_coins
+  @mixed_coins @invalid_coins ++ @valid_coins
 
   setup do
     {:ok, coin_acceptor: CoinAcceptor.new()}
@@ -33,13 +33,17 @@ defmodule CoinAcceptorTest do
   end
 
   test "should insert coins", %{coin_acceptor: coin_acceptor} do
-    configured_coin_acceptor = coin_acceptor |> CoinAcceptor.configure_coin_set(@coin_set)
-
-    updated_coin_acceptor = configured_coin_acceptor
+    updated_coin_acceptor = coin_acceptor
                             |> CoinAcceptor.insert_coins(@coins)
                             |> CoinAcceptor.insert_coins(@coins)
 
     assert updated_coin_acceptor.inserted == @coins ++ @coins
+  end
+
+  test "should empty inserted coins", %{coin_acceptor: coin_acceptor} do
+    updated_coin_acceptor = coin_acceptor |> CoinAcceptor.insert_coins(@coins) |> CoinAcceptor.empty_inserted_coins
+
+    assert updated_coin_acceptor.inserted == []
   end
 
   test "should accept coins", %{coin_acceptor: coin_acceptor} do
@@ -60,12 +64,6 @@ defmodule CoinAcceptorTest do
 
     assert valid == @valid_coins
     assert invalid == @invalid_coins
-  end
-
-  test "should empty inserted coins", %{coin_acceptor: coin_acceptor} do
-    updated_coin_acceptor = coin_acceptor |> CoinAcceptor.insert_coins(@coins) |> CoinAcceptor.empty_inserted_coins
-
-    assert updated_coin_acceptor.
   end
 
   test "should calculate change", %{coin_acceptor: coin_acceptor} do

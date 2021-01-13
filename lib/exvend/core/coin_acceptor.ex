@@ -38,4 +38,11 @@ defmodule Exvend.Core.CoinAcceptor do
   def sort_coins(%__MODULE__{coin_set: coin_set}, coins) when is_list(coins) do
     coins |> Enum.split_with(&(MapSet.member?(coin_set, &1)))
   end
+
+  def calculate_change(%__MODULE__{float: float}, coins) do
+    amount = Enum.sum(coins)
+    available = float ++ coins
+
+
+  end
 end
