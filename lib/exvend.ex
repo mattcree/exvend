@@ -4,6 +4,8 @@ defmodule Exvend do
 
   This contains the functions which allows creation of a new machine as well as
   various interactions on the machine, including Engineer and Customer facing features.
+
+  The majority of documentation can be found in the delegated modules.
   """
 
   alias Exvend.Service.{CustomerVendingMachine, EngineerVendingMachine}

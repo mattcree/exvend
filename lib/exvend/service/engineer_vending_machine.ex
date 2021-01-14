@@ -1,20 +1,53 @@
 defmodule Exvend.Service.EngineerVendingMachine do
-  @moduledoc false
-
   alias Exvend.Core.{CoinAcceptor, VendingMachine, Inventory, StockLocation}
 
-  @type vending_machine :: VendingMachine.t()
+  @type vending_machine :: VendingMachine.vending_machine()
   @type coins :: CoinAcceptor.coins()
   @type stock_code :: Inventory.stock_code()
   @type stock_item :: StockLocation.stock_item()
   @type price :: StockLocation.price()
   @type vending_machine_result :: VendingMachine.vending_machine_result()
 
+  @doc """
+  Creates a new vending machine machine
+
+  Returns a new %VendingMachine{} struct.
+
+  ## Examples
+
+      iex> Exvend.Service.EngineerVendingMachine.new_machine
+      %Exvend.Core.VendingMachine{
+        coin_acceptor: %Exvend.Core.CoinAcceptor{
+          coin_set: #MapSet<[]>,
+          float: [],
+          inserted: []
+        },
+        inventory: %{}
+      }
+  """
   @spec new_machine :: vending_machine
   def new_machine do
     VendingMachine.new()
   end
 
+  @doc """
+  Configures the coin set on an existing vending machine.
+
+  Returns a new a status message and the updated machine.
+
+  ## Examples
+
+      iex> Exvend.Service.EngineerVendingMachine.configure_coin_set(existing_machine, [1, 2, 5, 10, 20, 50])
+      {{:coin_set, #MapSet<[1, 2, 5, 10, 20, 50]>},
+        %Exvend.Core.VendingMachine{
+         coin_acceptor: %Exvend.Core.CoinAcceptor{
+           coin_set: #MapSet<[1, 2, 5, 10, 20, 50]>,
+           float: [],
+           inserted: []
+         },
+         inventory: %{}
+      }}
+  """
   @spec configure_coin_set(vending_machine, coins) :: vending_machine_result
   def configure_coin_set(%VendingMachine{coin_acceptor: coin_acceptor} = machine, coins)
       when is_list(coins) do
@@ -27,6 +60,25 @@ defmodule Exvend.Service.EngineerVendingMachine do
     {{:coin_set, updated_machine.coin_acceptor.coin_set}, updated_machine}
   end
 
+  @doc """
+
+  Adds coins into the machine which will be available for change making.
+
+  Returns a new a status message and the updated machine.
+
+  ### Examples
+
+      iex> Exvend.Service.EngineerVendingMachine.fill_float(existing_machine, [1, 2, 3, 4, 5, 6])
+      {{:added_to_float, [1, 2, 3, 4, 5, 6]},
+      %Exvend.Core.VendingMachine{
+       coin_acceptor: %Exvend.Core.CoinAcceptor{
+         coin_set: #MapSet<[]>,
+         float: [1, 2, 3, 4, 5, 6],
+         inserted: []
+       },
+       inventory: %{}
+      }}
+  """
   @spec fill_float(vending_machine, coins) :: vending_machine_result
   def fill_float(%VendingMachine{coin_acceptor: coin_acceptor} = machine, coins)
       when is_list(coins) do
@@ -37,15 +89,55 @@ defmodule Exvend.Service.EngineerVendingMachine do
     {{:added_to_float, coins}, updated_machine}
   end
 
+  @doc """
+
+  Empties all the coins from the float and returns them with the status message.
+
+  Returns a new a status message and the updated machine.
+
+  ### Examples
+
+      iex> Exvend.Service.EngineerVendingMachine.fill_float(existing_machine, [1, 2, 3, 4, 5, 6])
+      {{:added_to_float, [1, 2, 3, 4, 5, 6]},
+      %Exvend.Core.VendingMachine{
+       coin_acceptor: %Exvend.Core.CoinAcceptor{
+         coin_set: #MapSet<[]>,
+         float: [1, 2, 3, 4, 5, 6],
+         inserted: []
+       },
+       inventory: %{}
+      }}
+  """
   @spec empty_float(vending_machine) :: vending_machine_result
   def empty_float(%VendingMachine{coin_acceptor: coin_acceptor} = machine) do
     float = coin_acceptor.float
 
-    new_coin_acceptor = CoinAcceptor.empty_float(coin_acceptor)
+    new_coin_acceptor = coin_acceptor |> CoinAcceptor.empty_float()
 
     {{:emptied_float, float}, VendingMachine.update_coin_acceptor(machine, new_coin_acceptor)}
   end
 
+  @doc """
+
+  Creates a new stock location with the specified stock code and price.
+
+  Returns a new a status message and the updated machine if the location exists
+  otherwise will return the machine with no changes.
+
+  ### Examples
+
+      iex> Exvend.Service.EngineerVendingMachine.create_stock_location(existing_machine, "A1", 55)
+      {{:created, "A1"},
+      %Exvend.Core.VendingMachine{
+       coin_acceptor: %Exvend.Core.CoinAcceptor{
+         coin_set: #MapSet<[]>,
+         float: [],
+         inserted: []
+       },
+       inventory: %{"A1" => %Exvend.Core.StockLocation{price: 55, stock: []}}
+      }}
+
+  """
   @spec create_stock_location(vending_machine, stock_code, price) :: vending_machine_result
   def create_stock_location(%VendingMachine{inventory: inventory} = machine, stock_code, price) do
     case Inventory.get_stock_location(inventory, stock_code) do
@@ -60,6 +152,37 @@ defmodule Exvend.Service.EngineerVendingMachine do
     end
   end
 
+  @doc """
+
+  Creates a new stock location with the specified stock code and price.
+
+  Returns a new a status message and the updated machine if the location exists
+  otherwise will return the machine with no changes.
+
+  ### Examples
+
+      iex> {_, with_stock} = Exvend.Service.EngineerVendingMachine.create_stock_location(existing_machine, "A1", 55)
+      {{:created, "A1"},
+      %Exvend.Core.VendingMachine{
+       coin_acceptor: %Exvend.Core.CoinAcceptor{
+         coin_set: #MapSet<[]>,
+         float: [],
+         inserted: []
+       },
+       inventory: %{"A1" => %Exvend.Core.StockLocation{price: 55, stock: []}}
+      }}
+
+      iex> Exvend.Service.EngineerVendingMachine.create_stock_location(with_stock, "A1", 55)
+      {{:already_exists, %Exvend.Core.StockLocation{price: 55, stock: []}},
+      %Exvend.Core.VendingMachine{
+       coin_acceptor: %Exvend.Core.CoinAcceptor{
+         coin_set: #MapSet<[]>,
+         float: [],
+         inserted: []
+       },
+       inventory: %{"A1" => %Exvend.Core.StockLocation{price: 55, stock: []}}
+      }}
+  """
   @spec add_stock(vending_machine, stock_code, stock_item) :: vending_machine_result
   def add_stock(%VendingMachine{inventory: inventory} = machine, stock_code, item) do
     case Inventory.get_stock_location(inventory, stock_code) do

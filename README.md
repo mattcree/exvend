@@ -6,6 +6,10 @@ You can create a new machine, configure it with a coin set, stock, and manage th
 
 Then, Customers can insert their coins, vend a product, or cancel the transaction.
 
+## Generate the documentation
+
+- `$ mix docs`
+
 ## Running the tests
 
 - `$ mix test`

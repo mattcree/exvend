@@ -22,7 +22,8 @@ defmodule Exvend.MixProject do
   defp deps do
     [
       {:credo, "~> 1.5"},
-      {:dialyxir, "~> 1.0"}
+      {:dialyxir, "~> 1.0"},
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false}
     ]
   end
 end

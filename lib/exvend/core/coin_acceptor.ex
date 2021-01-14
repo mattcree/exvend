@@ -1,10 +1,25 @@
 defmodule Exvend.Core.CoinAcceptor do
-  @moduledoc false
-
+  @typedoc """
+  A set of coins representing the denominations of
+  coins which are allowed for transactions
+  """
   @type coin_set :: map()
+
+  @typedoc """
+  These are coins which are either taken as part of an ongoing transaction, or kept in the machine's float.
+  """
   @type coins :: list(pos_integer())
+
+  @typedoc """
+  A tuple of {valid_coins, invalid_coins}. Valid coins are coins which are in the coin_set for the machine.
+  """
   @type valid_and_invalid_coins :: {coins, coins}
 
+  @typedoc """
+  The coin acceptor mechanism which contains allowed coins for transactions
+  as well as a float (the coins available for making change) and inserted coins
+  (those which were inserted by a customer)
+  """
   @type coin_acceptor :: %__MODULE__{
           coin_set: coin_set(),
           float: coins(),
@@ -22,12 +37,12 @@ defmodule Exvend.Core.CoinAcceptor do
   end
 
   @spec configure_coin_set(coin_acceptor, coins) :: coin_acceptor
-  def configure_coin_set(%__MODULE__{} = coin_acceptor, coin_set) when is_list(coin_set) do
+  def configure_coin_set(%__MODULE__{} = coin_acceptor, coin_set) do
     %__MODULE__{coin_acceptor | coin_set: MapSet.new(coin_set)}
   end
 
   @spec fill_float(coin_acceptor, coins) :: coin_acceptor
-  def fill_float(%__MODULE__{float: float} = coin_acceptor, new_float) when is_list(float) do
+  def fill_float(%__MODULE__{float: float} = coin_acceptor, new_float) do
     %__MODULE__{coin_acceptor | float: float ++ new_float}
   end
 
@@ -37,7 +52,7 @@ defmodule Exvend.Core.CoinAcceptor do
   end
 
   @spec insert_coins(coin_acceptor, coins) :: coin_acceptor
-  def insert_coins(%__MODULE__{inserted: inserted} = coin_acceptor, coins) when is_list(coins) do
+  def insert_coins(%__MODULE__{inserted: inserted} = coin_acceptor, coins) do
     %__MODULE__{coin_acceptor | inserted: coins ++ inserted}
   end
 

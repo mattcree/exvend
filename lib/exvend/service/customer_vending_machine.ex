@@ -1,9 +1,7 @@
 defmodule Exvend.Service.CustomerVendingMachine do
-  @moduledoc false
-
   alias Exvend.Core.{CoinAcceptor, VendingMachine, Inventory}
 
-  @type vending_machine :: VendingMachine.t()
+  @type vending_machine :: VendingMachine.vending_machine()
   @type coins :: CoinAcceptor.coins()
   @type stock_code :: Inventory.stock_code()
   @type vending_machine_result :: VendingMachine.vending_machine_result()
