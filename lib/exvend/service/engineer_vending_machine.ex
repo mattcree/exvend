@@ -14,7 +14,6 @@ defmodule Exvend.Service.EngineerVendingMachine do
   Returns a new %VendingMachine{} struct.
 
   ## Examples
-
       iex> Exvend.Service.EngineerVendingMachine.new_machine
       %Exvend.Core.VendingMachine{
         coin_acceptor: %Exvend.Core.CoinAcceptor{
@@ -36,6 +35,7 @@ defmodule Exvend.Service.EngineerVendingMachine do
   Returns a new a status message and the updated machine.
 
   ## Examples
+      iex> existing_machine = Exvend.Service.EngineerVendingMachine.new_machine()
 
       iex> Exvend.Service.EngineerVendingMachine.configure_coin_set(existing_machine, [1, 2, 5, 10, 20, 50])
       {{:coin_set, #MapSet<[1, 2, 5, 10, 20, 50]>},
@@ -67,6 +67,7 @@ defmodule Exvend.Service.EngineerVendingMachine do
   Returns a new a status message and the updated machine.
 
   ### Examples
+      iex> existing_machine = Exvend.Service.EngineerVendingMachine.new_machine()
 
       iex> Exvend.Service.EngineerVendingMachine.fill_float(existing_machine, [1, 2, 3, 4, 5, 6])
       {{:added_to_float, [1, 2, 3, 4, 5, 6]},
@@ -96,6 +97,7 @@ defmodule Exvend.Service.EngineerVendingMachine do
   Returns a new a status message and the updated machine.
 
   ### Examples
+      iex> existing_machine = Exvend.Service.EngineerVendingMachine.new_machine()
 
       iex> Exvend.Service.EngineerVendingMachine.fill_float(existing_machine, [1, 2, 3, 4, 5, 6])
       {{:added_to_float, [1, 2, 3, 4, 5, 6]},
@@ -125,6 +127,7 @@ defmodule Exvend.Service.EngineerVendingMachine do
   otherwise will return the machine with no changes.
 
   ### Examples
+      iex> existing_machine = Exvend.Service.EngineerVendingMachine.new_machine()
 
       iex> Exvend.Service.EngineerVendingMachine.create_stock_location(existing_machine, "A1", 55)
       {{:created, "A1"},
@@ -154,14 +157,15 @@ defmodule Exvend.Service.EngineerVendingMachine do
 
   @doc """
 
-  Creates a new stock location with the specified stock code and price.
+  Adds stock to the location with the specified stock code and price.
 
   Returns a new a status message and the updated machine if the location exists
-  otherwise will return the machine with no changes.
+  otherwise will return the machine with no changes. See `create_stock_location/3` for example of the error status.
 
   ### Examples
+      iex> existing_machine = Exvend.Service.EngineerVendingMachine.new_machine()
 
-      iex> {_, with_stock} = Exvend.Service.EngineerVendingMachine.create_stock_location(existing_machine, "A1", 55)
+      iex> {_, with_stock_location} = Exvend.Service.EngineerVendingMachine.create_stock_location(existing_machine, "A1", 55)
       {{:created, "A1"},
       %Exvend.Core.VendingMachine{
        coin_acceptor: %Exvend.Core.CoinAcceptor{
@@ -172,15 +176,15 @@ defmodule Exvend.Service.EngineerVendingMachine do
        inventory: %{"A1" => %Exvend.Core.StockLocation{price: 55, stock: []}}
       }}
 
-      iex> Exvend.Service.EngineerVendingMachine.create_stock_location(with_stock, "A1", 55)
-      {{:already_exists, %Exvend.Core.StockLocation{price: 55, stock: []}},
+      iex> Exvend.Service.EngineerVendingMachine.add_stock(with_stock_location, "A1", "Cola")
+      {{:added, "Cola"},
       %Exvend.Core.VendingMachine{
        coin_acceptor: %Exvend.Core.CoinAcceptor{
          coin_set: #MapSet<[]>,
          float: [],
          inserted: []
        },
-       inventory: %{"A1" => %Exvend.Core.StockLocation{price: 55, stock: []}}
+       inventory: %{"A1" => %Exvend.Core.StockLocation{price: 55, stock: ["Cola"]}}
       }}
   """
   @spec add_stock(vending_machine, stock_code, stock_item) :: vending_machine_result
@@ -199,6 +203,50 @@ defmodule Exvend.Service.EngineerVendingMachine do
     end
   end
 
+  @doc """
+
+  Adds stock to the location with the specified stock code and price.
+
+  Returns a new a status message and the updated machine if the location exists
+  otherwise will return the machine with no changes. See `create_stock_location/3` for example of the error status.
+
+  ### Examples
+      iex> existing_machine = Exvend.Service.EngineerVendingMachine.new_machine()
+
+      iex> {_, with_stock_location} = Exvend.Service.EngineerVendingMachine.create_stock_location(existing_machine, "A1", 55)
+      {{:created, "A1"},
+      %Exvend.Core.VendingMachine{
+       coin_acceptor: %Exvend.Core.CoinAcceptor{
+         coin_set: #MapSet<[]>,
+         float: [],
+         inserted: []
+       },
+       inventory: %{"A1" => %Exvend.Core.StockLocation{price: 55, stock: []}}
+      }}
+
+      iex> {_, with_stock_cola}, Exvend.Service.EngineerVendingMachine.add_stock(with_stock_location, "A1", "Cola")
+      {{:added, "Cola"},
+      %Exvend.Core.VendingMachine{
+       coin_acceptor: %Exvend.Core.CoinAcceptor{
+         coin_set: #MapSet<[]>,
+         float: [],
+         inserted: []
+       },
+       inventory: %{"A1" => %Exvend.Core.StockLocation{price: 55, stock: ["Cola"]}}
+      }}
+
+      iex(6)> Exvend.Service.EngineerVendingMachine.remove_stock(with_stock_cola, "A1", "Cola")
+
+      {{:removed, "Cola"},
+      %Exvend.Core.VendingMachine{
+       coin_acceptor: %Exvend.Core.CoinAcceptor{
+         coin_set: #MapSet<[]>,
+         float: [],
+         inserted: []
+       },
+       inventory: %{"A1" => %Exvend.Core.StockLocation{price: 55, stock: []}}
+      }}
+  """
   @spec remove_stock(vending_machine, stock_code, stock_item) :: vending_machine_result
   def remove_stock(%VendingMachine{inventory: inventory} = machine, stock_code, item) do
     case Inventory.get_stock_location(inventory, stock_code) do
