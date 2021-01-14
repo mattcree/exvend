@@ -12,7 +12,10 @@ defmodule Exvend do
   defdelegate configure_coin_set(vending_machine, coins), to: EngineerVendingMachine
   defdelegate fill_float(vending_machine, coins), to: EngineerVendingMachine
   defdelegate empty_float(vending_machine), to: EngineerVendingMachine
-  defdelegate create_stock_location(vending_machine, stock_code, price), to: EngineerVendingMachine
+
+  defdelegate create_stock_location(vending_machine, stock_code, price),
+    to: EngineerVendingMachine
+
   defdelegate add_stock(vending_machine, stock_code, stock_item), to: EngineerVendingMachine
   defdelegate remove_stock(vending_machine, stock_code, stock_item), to: EngineerVendingMachine
 

@@ -4,9 +4,9 @@ defmodule Exvend.Core.VendingMachine do
 
   @type vending_machine_result :: {tuple, %__MODULE__{}}
   @type t :: %__MODULE__{
-               coin_acceptor: CoinAcceptor.t(),
-               inventory: Inventory.t()
-             }
+          coin_acceptor: CoinAcceptor.t(),
+          inventory: Inventory.t()
+        }
 
   defstruct ~w[coin_acceptor inventory]a
 

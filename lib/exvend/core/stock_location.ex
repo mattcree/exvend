@@ -6,9 +6,9 @@ defmodule Exvend.Core.StockLocation do
   @type stock :: list(stock_item())
 
   @type t :: %__MODULE__{
-               price: price(),
-               stock: stock()
-             }
+          price: price(),
+          stock: stock()
+        }
 
   defstruct ~w[price stock]a
 

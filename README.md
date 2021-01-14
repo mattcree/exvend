@@ -1,6 +1,18 @@
 # Exvend
 
-**TODO: Add description**
+Exvend is a library which gives you all the features you'd expect from a vending machine.
+
+You can create a new machine, configure it with a coin set, stock, and manage the float.
+
+Then, Customers can insert their coins, vend a product, or cancel the transaction.
+
+## Running the tests
+
+- `$ mix test`
+
+## Running Dialyzer for static type analysis
+
+- `$ mix dialyzer`
 
 ## Installation
 

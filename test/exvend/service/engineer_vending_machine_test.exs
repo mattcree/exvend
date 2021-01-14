@@ -35,8 +35,7 @@ defmodule EngineerVendingMachineTest do
   end
 
   test "should be able to create a new stock location", %{machine: machine} do
-    {message, _} =
-      machine |> EngineerVendingMachine.create_stock_location(@stock_code, @price)
+    {message, _} = machine |> EngineerVendingMachine.create_stock_location(@stock_code, @price)
 
     assert message == {:created, @stock_code}
   end

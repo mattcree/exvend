@@ -3,12 +3,12 @@ defmodule Exvend.Service.EngineerVendingMachine do
 
   alias Exvend.Core.{CoinAcceptor, VendingMachine, Inventory, StockLocation}
 
-  @type vending_machine :: VendingMachine.t
-  @type coins :: CoinAcceptor.coins
-  @type stock_code :: Inventory.stock_code
-  @type stock_item :: StockLocation.stock_item
-  @type price :: StockLocation.price
-  @type vending_machine_result :: VendingMachine.vending_machine_result
+  @type vending_machine :: VendingMachine.t()
+  @type coins :: CoinAcceptor.coins()
+  @type stock_code :: Inventory.stock_code()
+  @type stock_item :: StockLocation.stock_item()
+  @type price :: StockLocation.price()
+  @type vending_machine_result :: VendingMachine.vending_machine_result()
 
   @spec new_machine :: vending_machine
   def new_machine do

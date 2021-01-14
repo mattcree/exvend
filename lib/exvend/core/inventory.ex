@@ -3,7 +3,7 @@ defmodule Exvend.Core.Inventory do
 
   alias Exvend.Core.StockLocation
 
-  @type stock_location :: StockLocation.t
+  @type stock_location :: StockLocation.t()
   @type stock_code :: String.t()
   @type t :: map()
 
