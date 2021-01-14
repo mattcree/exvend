@@ -10,6 +10,10 @@ defmodule CoinAcceptorTest do
   @invalid_coins [4, 7, 8]
   @mixed_coins @invalid_coins ++ @valid_coins
 
+  @uk_coins [1, 2, 5, 10, 20, 50, 100, 200]
+
+  @uk_float [2, 20, 20, 20, 50, 100]
+
   setup do
     {:ok, coin_acceptor: CoinAcceptor.new()}
   end
@@ -67,6 +71,49 @@ defmodule CoinAcceptorTest do
   end
 
   test "should calculate change", %{coin_acceptor: coin_acceptor} do
+    result = all_possible_cashiers_change(@uk_float, 66)
 
+    IO.inspect result, char_lists: :as_lists
+
+    assert result == false
+  end
+
+  def all_possible_cashiers_change(coins, amount) do
+    coins
+    |> Enum.dedup
+    |> Enum.sort_by(&(-&1))
+    |> all_possible_cashiers_change([], amount)
+    |> Enum.map(&Enum.frequencies/1)
+  end
+
+  def all_possible_cashiers_change([], found, amount) do
+    found |> Enum.filter(&(&1 != []))
+  end
+
+  def all_possible_cashiers_change([h | t] = list, found, amount) do
+    all_possible_cashiers_change(t, [cashiers_change(list, amount) | found], amount)
+  end
+
+  def cashiers_change(coins, amount) do
+    cashiers_change(coins, [], amount)
+  end
+
+  def cashiers_change(coins, group, 0) do
+    Enum.reverse(group)
+  end
+
+  def cashiers_change([], group, remaining) do
+    []
+  end
+
+  def cashiers_change([h | t] = list, group, remaining) do
+    case h do
+      number when remaining >= number ->
+        cashiers_change(list, [h | group], remaining - h)
+      number when remaining - number == 0 ->
+        [h | group]
+      number ->
+        cashiers_change(t, group, remaining)
+    end
   end
 end
