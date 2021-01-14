@@ -12,7 +12,7 @@ defmodule CoinAcceptorTest do
 
   @uk_coins [1, 2, 5, 10, 20, 50, 100, 200]
 
-  @uk_float [2, 20, 20, 20, 50, 100]
+  @uk_float [1, 1, 1, 1, 2, 20, 20, 20, 50, 100]
 
   setup do
     {:ok, coin_acceptor: CoinAcceptor.new()}
@@ -72,48 +72,49 @@ defmodule CoinAcceptorTest do
 
   test "should calculate change", %{coin_acceptor: coin_acceptor} do
     result = all_possible_cashiers_change(@uk_float, 66)
+    float_freq = Enum.frequencies(@uk_float)
+    result2 = Enum.map(result, fn change -> {change, can_make_change(float_freq, change)} end)
 
     IO.inspect result, char_lists: :as_lists
+    IO.inspect result2, char_lists: :as_lists
 
     assert result == false
   end
 
+  def can_make_change(available_change, possible_change) do
+    Map.keys(possible_change) |> Enum.all?(&(has_enough_of_coin_in_float(available_change, possible_change, &1)))
+  end
+
+  def has_enough_of_coin_in_float(available_change, possible_change, coin) do
+    Map.get(available_change, coin) >= Map.get(possible_change, coin)
+  end
+
   def all_possible_cashiers_change(coins, amount) do
+    frequencies = Enum.frequencies(coins)
+    found_frequencies = Map.new()
+
     coins
     |> Enum.dedup
     |> Enum.sort_by(&(-&1))
-    |> all_possible_cashiers_change([], amount)
+    |> all_possible_cashiers_change(frequencies, found_frequencies, [], amount)
+    |> Enum.sort_by(&length/1)
     |> Enum.map(&Enum.frequencies/1)
   end
 
-  def all_possible_cashiers_change([], found, amount) do
-    found |> Enum.filter(&(&1 != []))
+  def all_possible_cashiers_change([], frequencies, found_frequencies, found_change, amount), do: found_change |> Enum.reject(&Enum.empty?/1)
+  def all_possible_cashiers_change([h | t] = coins, frequencies, found_frequencies, found_change, amount) do
+    all_possible_cashiers_change(t, [cashiers_change(coins, amount, frequencies, found_frequencies) | found_change], frequencies, found_frequencies, amount)
   end
 
-  def all_possible_cashiers_change([h | t] = list, found, amount) do
-    all_possible_cashiers_change(t, [cashiers_change(list, amount) | found], amount)
+  def cashiers_change(coins, amount, frequencies, found_frequencies), do: cashiers_change(coins, [], amount, frequencies, found_frequencies)
+
+  defp cashiers_change(_, found_change, 0, frequencies, found_frequencies), do: found_change
+  defp cashiers_change([], _, _, _, _), do: []
+  defp cashiers_change([h | _] = coins, found_change, remaining_amount, frequencies, found_frequencies) when remaining_amount >= h do
+    cashiers_change(coins, [h | found_change], remaining_amount - h, frequencies, found_frequencies)
   end
 
-  def cashiers_change(coins, amount) do
-    cashiers_change(coins, [], amount)
-  end
-
-  def cashiers_change(coins, group, 0) do
-    Enum.reverse(group)
-  end
-
-  def cashiers_change([], group, remaining) do
-    []
-  end
-
-  def cashiers_change([h | t] = list, group, remaining) do
-    case h do
-      number when remaining >= number ->
-        cashiers_change(list, [h | group], remaining - h)
-      number when remaining - number == 0 ->
-        [h | group]
-      number ->
-        cashiers_change(t, group, remaining)
-    end
+  defp cashiers_change([_ | t], found_change, remaining_amount, frequencies, found_frequencies) do
+    cashiers_change(t, found_change, remaining_amount, frequencies, found_frequencies)
   end
 end
