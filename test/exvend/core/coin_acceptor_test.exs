@@ -10,10 +10,6 @@ defmodule CoinAcceptorTest do
   @invalid_coins [4, 7, 8]
   @mixed_coins @invalid_coins ++ @valid_coins
 
-  @uk_coins [1, 2, 5, 10, 20, 50, 100, 200]
-
-  @uk_float [1, 1, 1, 1, 2, 20, 20, 20, 50, 100]
-
   setup do
     {:ok, coin_acceptor: CoinAcceptor.new()}
   end
@@ -73,56 +69,5 @@ defmodule CoinAcceptorTest do
 
     assert valid == @valid_coins
     assert invalid == @invalid_coins
-  end
-
-  test "should calculate change", %{coin_acceptor: coin_acceptor} do
-    float = [1, 1, 1, 1, 2, 20, 20, 20, 50, 100]
-    result = all_possible_cashiers_change(float, 66)
-    float_freq = Enum.frequencies(@uk_float)
-    result2 = Enum.map(result, fn change -> {change, can_make_change(float_freq, change)} end)
-
-    IO.inspect(result, char_lists: :as_lists)
-    IO.inspect(result2, char_lists: :as_lists)
-
-    assert result == false
-  end
-
-  def can_make_change(available_change, possible_change) do
-    Map.keys(possible_change)
-    |> Enum.all?(&has_enough_of_coin_in_float(available_change, possible_change, &1))
-  end
-
-  def has_enough_of_coin_in_float(available_change, possible_change, coin) do
-    Map.get(available_change, coin) >= Map.get(possible_change, coin)
-  end
-
-  def all_possible_cashiers_change(coins, amount) do
-    coins
-    |> Enum.dedup()
-    |> Enum.sort_by(&(-&1))
-    |> all_possible_cashiers_change([], amount)
-    |> Enum.sort_by(&length/1)
-    |> Enum.map(&Enum.frequencies/1)
-  end
-
-  def all_possible_cashiers_change([], found_change, amount),
-    do: found_change |> Enum.reject(&Enum.empty?/1)
-
-  def all_possible_cashiers_change([h | t] = list, found_change, amount) do
-    all_possible_cashiers_change(t, [cashiers_change(list, amount) | found_change], amount)
-  end
-
-  def cashiers_change(coins, amount), do: cashiers_change(coins, [], amount)
-
-  defp cashiers_change(_, found_change, 0), do: found_change
-  defp cashiers_change([], _, _), do: []
-
-  defp cashiers_change([h | _] = list, found_change, remaining_amount)
-       when remaining_amount >= h do
-    cashiers_change(list, [h | found_change], remaining_amount - h)
-  end
-
-  defp cashiers_change([_ | t], found_change, remaining_amount) do
-    cashiers_change(t, found_change, remaining_amount)
   end
 end

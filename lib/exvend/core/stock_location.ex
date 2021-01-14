@@ -1,4 +1,6 @@
 defmodule Exvend.Core.StockLocation do
+  @moduledoc false
+
   @typedoc """
   A price for a stock item
   """

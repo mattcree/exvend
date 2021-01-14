@@ -1,4 +1,6 @@
 defmodule Exvend.Core.VendingMachine do
+  @moduledoc false
+
   alias Exvend.Core.{CoinAcceptor, Inventory}
 
   @type coin_acceptor :: CoinAcceptor.coin_acceptor()

@@ -11,7 +11,7 @@ defmodule Exvend.Service.EngineerVendingMachine do
   @doc """
   Creates a new vending machine machine
 
-  Returns a new %VendingMachine{} struct.
+  Returns a new vending machine.
 
   ## Examples
       iex> Exvend.Service.EngineerVendingMachine.new_machine
@@ -36,7 +36,6 @@ defmodule Exvend.Service.EngineerVendingMachine do
 
   ## Examples
       iex> existing_machine = Exvend.Service.EngineerVendingMachine.new_machine()
-
       iex> Exvend.Service.EngineerVendingMachine.configure_coin_set(existing_machine, [1, 2, 5, 10, 20, 50])
       {{:coin_set, #MapSet<[1, 2, 5, 10, 20, 50]>},
         %Exvend.Core.VendingMachine{
@@ -68,7 +67,6 @@ defmodule Exvend.Service.EngineerVendingMachine do
 
   ### Examples
       iex> existing_machine = Exvend.Service.EngineerVendingMachine.new_machine()
-
       iex> Exvend.Service.EngineerVendingMachine.fill_float(existing_machine, [1, 2, 3, 4, 5, 6])
       {{:added_to_float, [1, 2, 3, 4, 5, 6]},
       %Exvend.Core.VendingMachine{
@@ -98,7 +96,6 @@ defmodule Exvend.Service.EngineerVendingMachine do
 
   ### Examples
       iex> existing_machine = Exvend.Service.EngineerVendingMachine.new_machine()
-
       iex> Exvend.Service.EngineerVendingMachine.fill_float(existing_machine, [1, 2, 3, 4, 5, 6])
       {{:added_to_float, [1, 2, 3, 4, 5, 6]},
       %Exvend.Core.VendingMachine{
@@ -128,7 +125,6 @@ defmodule Exvend.Service.EngineerVendingMachine do
 
   ### Examples
       iex> existing_machine = Exvend.Service.EngineerVendingMachine.new_machine()
-
       iex> Exvend.Service.EngineerVendingMachine.create_stock_location(existing_machine, "A1", 55)
       {{:created, "A1"},
       %Exvend.Core.VendingMachine{
@@ -164,7 +160,6 @@ defmodule Exvend.Service.EngineerVendingMachine do
 
   ### Examples
       iex> existing_machine = Exvend.Service.EngineerVendingMachine.new_machine()
-
       iex> {_, with_stock_location} = Exvend.Service.EngineerVendingMachine.create_stock_location(existing_machine, "A1", 55)
       {{:created, "A1"},
       %Exvend.Core.VendingMachine{
@@ -175,7 +170,6 @@ defmodule Exvend.Service.EngineerVendingMachine do
        },
        inventory: %{"A1" => %Exvend.Core.StockLocation{price: 55, stock: []}}
       }}
-
       iex> Exvend.Service.EngineerVendingMachine.add_stock(with_stock_location, "A1", "Cola")
       {{:added, "Cola"},
       %Exvend.Core.VendingMachine{
@@ -212,7 +206,6 @@ defmodule Exvend.Service.EngineerVendingMachine do
 
   ### Examples
       iex> existing_machine = Exvend.Service.EngineerVendingMachine.new_machine()
-
       iex> {_, with_stock_location} = Exvend.Service.EngineerVendingMachine.create_stock_location(existing_machine, "A1", 55)
       {{:created, "A1"},
       %Exvend.Core.VendingMachine{
@@ -223,7 +216,6 @@ defmodule Exvend.Service.EngineerVendingMachine do
        },
        inventory: %{"A1" => %Exvend.Core.StockLocation{price: 55, stock: []}}
       }}
-
       iex> {_, with_stock_cola}, Exvend.Service.EngineerVendingMachine.add_stock(with_stock_location, "A1", "Cola")
       {{:added, "Cola"},
       %Exvend.Core.VendingMachine{
@@ -234,9 +226,7 @@ defmodule Exvend.Service.EngineerVendingMachine do
        },
        inventory: %{"A1" => %Exvend.Core.StockLocation{price: 55, stock: ["Cola"]}}
       }}
-
       iex(6)> Exvend.Service.EngineerVendingMachine.remove_stock(with_stock_cola, "A1", "Cola")
-
       {{:removed, "Cola"},
       %Exvend.Core.VendingMachine{
        coin_acceptor: %Exvend.Core.CoinAcceptor{

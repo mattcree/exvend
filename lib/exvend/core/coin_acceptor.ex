@@ -1,4 +1,6 @@
 defmodule Exvend.Core.CoinAcceptor do
+  @moduledoc false
+
   @typedoc """
   A set of coins representing the denominations of
   coins which are allowed for transactions

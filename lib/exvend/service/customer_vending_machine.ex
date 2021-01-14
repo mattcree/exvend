@@ -42,7 +42,6 @@ defmodule Exvend.Service.CustomerVendingMachine do
     {{:returned, invalid, :inserted, valid}, updated_machine}
   end
 
-
   @doc """
   Allows the customer to retrieve any inserted coins from the vending machine
 
@@ -77,7 +76,6 @@ defmodule Exvend.Service.CustomerVendingMachine do
 
     {{:returned, inserted}, updated_machine}
   end
-
 
   @doc """
   TBA

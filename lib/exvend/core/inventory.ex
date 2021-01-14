@@ -1,4 +1,6 @@
 defmodule Exvend.Core.Inventory do
+  @moduledoc false
+
   alias Exvend.Core.StockLocation
 
   @type stock_location :: StockLocation.stock_location()
