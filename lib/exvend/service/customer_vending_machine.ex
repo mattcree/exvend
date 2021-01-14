@@ -1,4 +1,9 @@
 defmodule Exvend.Service.CustomerVendingMachine do
+  @moduledoc """
+  The Customer facing functionality expected by a vending machine.
+  Allows customers to insert and eject coins, and vend items.
+  """
+
   alias Exvend.Core.{CoinAcceptor, VendingMachine, Inventory, StockLocation}
   alias Exvend.Service.SmartCashier
 
@@ -90,7 +95,10 @@ defmodule Exvend.Service.CustomerVendingMachine do
 
   Otherwise the item and their change will be returned, along with the updated machine.
 
+  For detailed examples please look at the unit tests.
+
   ### Examples
+
 
   """
   @spec vend(vending_machine, stock_code) :: vending_machine_result
@@ -112,11 +120,11 @@ defmodule Exvend.Service.CustomerVendingMachine do
   end
 
   @spec do_vend(vending_machine, stock_code, stock_location, coins, pos_integer) :: vending_machine_result
-  def do_vend(machine, _, _, _, change_required) when change_required < 0 do
+  defp do_vend(machine, _, _, _, change_required) when change_required < 0 do
     {{:insert_coins, abs(change_required)}, machine}
   end
 
-  def do_vend(machine, stock_code, location, available_money, change_required) do
+  defp do_vend(machine, stock_code, location, available_money, change_required) do
     case SmartCashier.make_change(available_money, change_required) do
       nil ->
         {{:exact_change_required}, machine}

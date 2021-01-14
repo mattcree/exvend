@@ -1,5 +1,7 @@
 defmodule Exvend.Service.SmartCashier do
-
+  @moduledoc """
+  The change making service.
+  """
 
   @type target_change :: pos_integer
   @type coins :: list(pos_integer)
@@ -13,6 +15,22 @@ defmodule Exvend.Service.SmartCashier do
   available coins.
 
   This one adapts the Cashier's Algorithm by taking into account the availability of coins in the original list.
+  It essentially uses the same process but it can work with a finite group of coins.
+
+  Essentially the process is as follows
+  - Scan the list to determine what denominations we have and the quantity of each
+  - For each denomination we have that is smaller than the target number ordered by largest first
+    - While the current denomination is smaller than target
+      - If we have enough of the coins available
+        - Count it towards a possible set of change, and decrease the count for that coin's availability
+        - Decrement target number by the denomination's size
+      - If the coin availability is zero, move onto the next denomination
+    - When the denomination is greater than the target, continue to the next denomination
+    - If we find that the target is zero, we know we're finished and can return the change
+    - If we find that the denominations list is empty, we know we've not found a grouping of coins that satisfies the target so we return an empty list
+  - We remove empty results and sort by size (smallest first)
+  - We finally take the first item from that list (it will be the change, or nil)
+
 
   Returns a list of coins which sum to the target, or nil of none can be found
 
@@ -25,10 +43,9 @@ defmodule Exvend.Service.SmartCashier do
   def make_change(coins, target_amount) do
     coin_frequencies = Enum.frequencies(coins)
 
-    change =
-      coin_frequencies
-      |> Map.keys
-      |> Enum.filter(&(target_amount > &1))
+    coin_frequencies
+      |> Map.keys()
+      |> Enum.filter(&(target_amount >= &1))
       |> Enum.sort_by(&(-&1))
       |> find_satisfying_change(coin_frequencies, target_amount)
       |> Enum.reject(&Enum.empty?/1)
@@ -77,7 +94,7 @@ defmodule Exvend.Service.SmartCashier do
         cashiers_change(remaining_coins, coin_frequencies, remaining_amount, found_change)
 
       frequency ->
-        updated_coin_frequencies = Map.replace(coin_frequencies, coin_denomination, frequency - 1)
+        updated_coin_frequencies = Map.put(coin_frequencies, coin_denomination, frequency - 1)
 
         cashiers_change(
           coin_denominations,

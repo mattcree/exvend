@@ -1,4 +1,9 @@
 defmodule Exvend.Service.EngineerVendingMachine do
+  @moduledoc """
+  The specific functionality required by Vending Machine Service Engineers.
+  Various maintenance tasks around restocking and configuration can be found here.
+  """
+
   alias Exvend.Core.{CoinAcceptor, VendingMachine, Inventory, StockLocation}
 
   @type vending_machine :: VendingMachine.vending_machine()

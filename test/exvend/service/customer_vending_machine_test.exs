@@ -65,12 +65,12 @@ defmodule CustomerVendingMachineTest do
     assert message == {:returned, @valid_coins}
   end
 
-  test "should be able to vend selected product and receive change when vending", %{
-    machine: machine
-  } do
+  test "should be able to vend selected product and receive change when vending" do
   end
 
-  test "should inform when when change cannot be made and exact change is required", %{machine: machine} do
+  test "should inform when when change cannot be made and exact change is required", %{
+    machine: machine
+  } do
     {_, with_inserted} = machine |> CustomerVendingMachine.insert_coins(@inserted_coin)
     {_, after_vending} = with_inserted |> CustomerVendingMachine.vend(@stock_code)
     {_, with_inserted_again} = after_vending |> CustomerVendingMachine.insert_coins(@valid_coins)

@@ -10,10 +10,6 @@ defmodule CoinAcceptorTest do
   @invalid_coins [4, 7, 8]
   @mixed_coins @invalid_coins ++ @valid_coins
 
-  @coins_one [1, 1, 1, 1, 2, 20, 20, 20, 50, 100, 100]
-  @return_one 66
-  @target_one [1, 1, 1, 1, 2, 20, 20, 20]
-
   setup do
     {:ok, coin_acceptor: CoinAcceptor.new()}
   end

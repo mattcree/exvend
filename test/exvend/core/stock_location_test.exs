@@ -3,9 +3,7 @@ defmodule StockLocationTest do
   use ExUnit.Case
   alias Exvend.Core.StockLocation
 
-  @stock_code "A2"
   @price 99
-
   @stock_name "Cola"
 
   setup do

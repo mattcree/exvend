@@ -32,10 +32,7 @@ defmodule InventoryTest do
     assert retrieved_stock_location == location
   end
 
-  test "should return nil when stock location does not exist", %{
-    inventory: inventory,
-    location: location
-  } do
+  test "should return nil when stock location does not exist", %{inventory: inventory} do
     retrieved_stock_location = inventory |> Inventory.get_stock_location(@stock_code)
 
     assert retrieved_stock_location == nil
