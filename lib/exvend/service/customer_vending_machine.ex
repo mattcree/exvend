@@ -1,9 +1,11 @@
 defmodule Exvend.Service.CustomerVendingMachine do
-  alias Exvend.Core.{CoinAcceptor, VendingMachine, Inventory}
+  alias Exvend.Core.{CoinAcceptor, VendingMachine, Inventory, StockLocation}
+  alias Exvend.Service.SmartCashier
 
   @type vending_machine :: VendingMachine.vending_machine()
   @type coins :: CoinAcceptor.coins()
   @type stock_code :: Inventory.stock_code()
+  @type stock_location :: StockLocation.stock_location()
   @type vending_machine_result :: VendingMachine.vending_machine_result()
 
   @doc """
@@ -78,16 +80,69 @@ defmodule Exvend.Service.CustomerVendingMachine do
   end
 
   @doc """
-  TBA
+  Allows the customer to vend an item.
+
+  The customer will be notified if
+  - the item is sold out
+  - the item is not found
+  - they do not have enough money inserted
+  - the machine doesn't have enough money to make change
+
+  Otherwise the item and their change will be returned, along with the updated machine.
+
+  ### Examples
+
   """
   @spec vend(vending_machine, stock_code) :: vending_machine_result
-  def vend(%VendingMachine{inventory: inventory} = machine, stock_code) do
-    case Inventory.get_stock_location(inventory, stock_code) do
+  def vend(machine, stock_code) do
+    case Inventory.get_stock_location(machine.inventory, stock_code) do
       nil ->
         {{:not_found, stock_code}, machine}
 
+      %StockLocation{stock: stock} when stock == [] ->
+        {{:sold_out, stock_code}, machine}
+
       stock_location ->
-        {{:message}, machine}
+        inserted_amount = Enum.sum(machine.coin_acceptor.inserted)
+        available_money = machine.coin_acceptor.float ++ machine.coin_acceptor.inserted
+        change_required = inserted_amount - stock_location.price
+
+        do_vend(machine, stock_code, stock_location, available_money, change_required)
+    end
+  end
+
+  @spec do_vend(vending_machine, stock_code, stock_location, coins, pos_integer) :: vending_machine_result
+  def do_vend(machine, _, _, _, change_required) when change_required < 0 do
+    {{:insert_coins, abs(change_required)}, machine}
+  end
+
+  def do_vend(machine, stock_code, location, available_money, change_required) do
+    case SmartCashier.make_change(available_money, change_required) do
+      nil ->
+        {{:exact_change_required}, machine}
+
+      change ->
+        item = location.stock |> List.first()
+
+        updated_coin_acceptor =
+          machine.coin_acceptor
+          |> CoinAcceptor.accept_coins()
+          |> CoinAcceptor.remove_coins(change)
+
+        updated_stock_location =
+          location
+          |> StockLocation.remove_stock(item)
+
+        updated_inventory =
+          machine.inventory
+          |> Inventory.update_stock_location(stock_code, updated_stock_location)
+
+        updated_machine =
+          machine
+          |> VendingMachine.update_coin_acceptor(updated_coin_acceptor)
+          |> VendingMachine.update_inventory(updated_inventory)
+
+        {{:item, item, :change, change}, updated_machine}
     end
   end
 end

@@ -3,12 +3,16 @@ defmodule CoinAcceptorTest do
   use ExUnit.Case
   alias Exvend.Core.CoinAcceptor
 
-  @coin_set [3, 6, 5, 9]
-  @coins [3]
+  @coin_set [1, 2, 5, 10, 20, 50, 100, 200]
+
   @float [3, 3, 3, 6, 6, 6, 5, 5, 5, 9, 9, 9]
-  @valid_coins [3, 6, 5, 9]
+  @valid_coins [1, 5, 20, 100]
   @invalid_coins [4, 7, 8]
   @mixed_coins @invalid_coins ++ @valid_coins
+
+  @coins_one [1, 1, 1, 1, 2, 20, 20, 20, 50, 100, 100]
+  @return_one 66
+  @target_one [1, 1, 1, 1, 2, 20, 20, 20]
 
   setup do
     {:ok, coin_acceptor: CoinAcceptor.new()}
@@ -35,15 +39,17 @@ defmodule CoinAcceptorTest do
   test "should insert coins", %{coin_acceptor: coin_acceptor} do
     updated_coin_acceptor =
       coin_acceptor
-      |> CoinAcceptor.insert_coins(@coins)
-      |> CoinAcceptor.insert_coins(@coins)
+      |> CoinAcceptor.insert_coins(@valid_coins)
+      |> CoinAcceptor.insert_coins(@valid_coins)
 
-    assert updated_coin_acceptor.inserted == @coins ++ @coins
+    assert updated_coin_acceptor.inserted == @valid_coins ++ @valid_coins
   end
 
   test "should empty inserted coins", %{coin_acceptor: coin_acceptor} do
     updated_coin_acceptor =
-      coin_acceptor |> CoinAcceptor.insert_coins(@coins) |> CoinAcceptor.empty_inserted_coins()
+      coin_acceptor
+      |> CoinAcceptor.insert_coins(@valid_coins)
+      |> CoinAcceptor.empty_inserted_coins()
 
     assert updated_coin_acceptor.inserted == []
   end
@@ -54,10 +60,10 @@ defmodule CoinAcceptorTest do
     updated_coin_acceptor =
       configured_coin_acceptor
       |> CoinAcceptor.fill_float(@float)
-      |> CoinAcceptor.insert_coins(@coins)
+      |> CoinAcceptor.insert_coins(@valid_coins)
       |> CoinAcceptor.accept_coins()
 
-    assert updated_coin_acceptor.float == @float ++ @coins
+    assert updated_coin_acceptor.float == @float ++ @valid_coins
   end
 
   test "should sort coins into valid and invalid coins based on coin set", %{

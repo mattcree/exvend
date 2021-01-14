@@ -68,6 +68,11 @@ defmodule Exvend.Core.CoinAcceptor do
     %__MODULE__{coin_acceptor | float: float ++ inserted, inserted: []}
   end
 
+  @spec remove_coins(coin_acceptor, coins) :: coin_acceptor
+  def remove_coins(%__MODULE__{float: float} = coin_acceptor, coins) do
+    %__MODULE__{coin_acceptor | float: float -- coins}
+  end
+
   @spec sort_coins(coin_acceptor, coins) :: valid_and_invalid_coins
   def sort_coins(%__MODULE__{coin_set: coin_set}, coins) when is_list(coins) do
     coins |> Enum.split_with(&MapSet.member?(coin_set, &1))
