@@ -2,6 +2,12 @@ defmodule Exvend.Core.VendingMachine do
   @moduledoc false
   alias Exvend.Core.{CoinAcceptor, Inventory}
 
+  @type vending_machine_result :: {tuple, %__MODULE__{}}
+  @type t :: %__MODULE__{
+               coin_acceptor: CoinAcceptor.t(),
+               inventory: Inventory.t()
+             }
+
   defstruct ~w[coin_acceptor inventory]a
 
   def new() do

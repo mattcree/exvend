@@ -34,7 +34,10 @@ defmodule StockLocationTest do
   end
 
   test "should only remove one item of stock", %{stock_location: stock_location} do
-    with_stock = stock_location |> StockLocation.add_stock(@stock_name) |> StockLocation.add_stock(@stock_name)
+    with_stock =
+      stock_location
+      |> StockLocation.add_stock(@stock_name)
+      |> StockLocation.add_stock(@stock_name)
 
     updated_stock_location = StockLocation.remove_stock(with_stock, @stock_name)
 

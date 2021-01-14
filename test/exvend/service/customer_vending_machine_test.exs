@@ -3,7 +3,7 @@ defmodule CustomerVendingMachineTest do
 
   use ExUnit.Case
   alias Exvend.Core.{CoinAcceptor, VendingMachine, Inventory, StockLocation}
-  alias Exvend.Customer.CustomerVendingMachine
+  alias Exvend.Service.CustomerVendingMachine
 
   @stock_code "A1"
   @unknown_stock_code "A2"
@@ -18,9 +18,10 @@ defmodule CustomerVendingMachineTest do
     coin_acceptor = CoinAcceptor.new() |> CoinAcceptor.configure_coin_set(@coin_set)
     inventory = Inventory.new() |> Inventory.create_stock_location(@stock_code, location)
 
-    machine = VendingMachine.new()
-              |> VendingMachine.update_coin_acceptor(coin_acceptor)
-              |> VendingMachine.update_inventory(inventory)
+    machine =
+      VendingMachine.new()
+      |> VendingMachine.update_coin_acceptor(coin_acceptor)
+      |> VendingMachine.update_inventory(inventory)
 
     {:ok, machine: machine}
   end
@@ -46,26 +47,25 @@ defmodule CustomerVendingMachineTest do
   test "should be able to return inserted coins", %{machine: machine} do
     {_, with_inserted} = machine |> CustomerVendingMachine.insert_coins(@valid_coins)
 
-    {message, _} = with_inserted |> CustomerVendingMachine.return_coins
+    {message, _} = with_inserted |> CustomerVendingMachine.return_coins()
 
     assert message == {:returned, @valid_coins}
   end
 
-  test "should be able to vend selected product and receive change when vending", %{machine: machine} do
-
+  test "should be able to vend selected product and receive change when vending", %{
+    machine: machine
+  } do
   end
 
   test "should inform when change cannot be made when vending" do
-
   end
 
   test "should ask for more coins when vending with too few inserted coins when vending" do
-
   end
 
   test "should inform when selected stock code not found when vending", %{machine: machine} do
-    {message, _} = machine |> CustomerVendingMachine.vend(@unknown_stock_code, @valid_coins)
+    {message, _} = machine |> CustomerVendingMachine.vend(@unknown_stock_code)
 
-    assert message == {:not_found, @unknown_stock_code, :returned, @valid_coins}
+    assert message == {:not_found, @unknown_stock_code}
   end
 end

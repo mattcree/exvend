@@ -24,14 +24,18 @@ defmodule InventoryTest do
   end
 
   test "should get stock location", %{inventory: inventory, location: location} do
-    retrieved_stock_location = inventory
-                               |> Inventory.create_stock_location(@stock_code, location)
-                               |> Inventory.get_stock_location(@stock_code)
+    retrieved_stock_location =
+      inventory
+      |> Inventory.create_stock_location(@stock_code, location)
+      |> Inventory.get_stock_location(@stock_code)
 
     assert retrieved_stock_location == location
   end
 
-  test "should return nil when stock location does not exist", %{inventory: inventory, location: location} do
+  test "should return nil when stock location does not exist", %{
+    inventory: inventory,
+    location: location
+  } do
     retrieved_stock_location = inventory |> Inventory.get_stock_location(@stock_code)
 
     assert retrieved_stock_location == nil
@@ -40,10 +44,11 @@ defmodule InventoryTest do
   test "should update stock location when it exists", %{inventory: inventory, location: location} do
     new_location = StockLocation.new(@price_two)
 
-    retrieved_stock_location = inventory
-                               |> Inventory.create_stock_location(@stock_code, location)
-                               |> Inventory.update_stock_location(@stock_code, new_location)
-                               |> Inventory.get_stock_location(@stock_code)
+    retrieved_stock_location =
+      inventory
+      |> Inventory.create_stock_location(@stock_code, location)
+      |> Inventory.update_stock_location(@stock_code, new_location)
+      |> Inventory.get_stock_location(@stock_code)
 
     assert retrieved_stock_location == new_location
   end
