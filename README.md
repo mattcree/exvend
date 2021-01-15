@@ -109,7 +109,7 @@ a Customer will receive after successfully vending a product.
 
 The algorithm used is adapted from the Cashier's Algorithm in order to make it aware of the finite set of coins it has to work with.
 
-It attemps to create the minimum set of coins but will limit itself only to coins which can be taken from the input list.
+It attempts to create the minimum set of coins but will limit itself only to coins which can be taken from the input list.
 
 ## Assumptions
 The following assumptions were made
@@ -124,7 +124,7 @@ The following assumptions were made
 4. Certain ordinary error cases should be handled including
    - Service engineer tries to create stock location that already exists
    - User tries to select an item that does not exist
-   - Item is sold
+   - Item is sold out
    - etc.
 
 5. Real vending machines will accept all valid coins and return invalid coins, therefore rather than treat some invalid coins
@@ -135,13 +135,17 @@ The following assumptions were made
 
 ## Limitations
 
-Time. Given more time I would probably refactor the `Exvend.vend/2` function since it is rather unweildy. It has many possible
-paths. There is a lot of inline logic that I would probably refactor out into functions to help with readability.
+1. Given more time I would probably refactor the `Exvend.vend/2` function since it is rather unweildy. It has many possible
+paths. There is a lot of inline logic that I would probably refactor out into functions to help with readability. The documentation is not complete
+for this despite it being the most important function. With more time I would have fleshed it out more, but instead directed the reader to the
+unit tests which give a more clear set of conditions for each return value.
 
-The Algorithm has only really been tested using the provided (from the original brief) examples and can't really be proved to work in call cases.
+2. The Algorithm has only really been tested using the provided (from the original brief) examples and can't really be proved to work in call cases.
+However, we all hope it does. It is also reasonably in need of a proper refactor for readability. I have used `mix format` which has formatted to avoid long lines.
+At minimum a compromise would be to minimise the names to more abstract naming such as '[h | t]' for list pattern matching, which while not 
+clean code, is a well understood convention. I opted for naming to give maximum context to the reader for this exercise, so code formatting
+has suffered.
 
-However, we all hope it does.
-
-Testing could be a bit more focused. I have tested many lower level modules which could probably be tested via the public API.
+4. Testing could be a bit more focused. I have tested many lower level modules which could probably be tested via the public API.
 I would like to have refactored the tests to use more fixtures so that they were not so repetitive and verbose, but they were primarily designed for 
 testing correctness, considering the assignment's time constraints, rather than long term maintainability which is ordinarily a concern of mine.

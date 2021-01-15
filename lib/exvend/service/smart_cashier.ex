@@ -37,7 +37,7 @@ defmodule Exvend.Service.SmartCashier do
 
   ### Examples
       iex> Exvend.Service.SmartCashier.make_change([1, 1, 1, 1, 2, 20, 20, 20], 4)
-      [1, 1, 1, 1, 2, 20, 20, 20]
+      [1, 1, 2]
 
       iex> Exvend.Service.SmartCashier.make_change([1, 1, 1, 1, 2, 20, 20, 20], 66)
       [1, 1, 1, 1, 2, 20, 20, 20]
@@ -52,17 +52,23 @@ defmodule Exvend.Service.SmartCashier do
       nil
   """
   @spec make_change(coins, target_change) :: coins | nil
-  def make_change(coins, target_amount) do
+  def make_change(coins, target_change) do
+    coins
+    |> make_possible_change(target_change)
+    |> Enum.sort_by(&length/1)
+    |> List.first()
+  end
+
+  @spec make_possible_change(coins, target_change) :: list(coins)
+  def make_possible_change(coins, target_change) do
     coin_frequencies = Enum.frequencies(coins)
 
     coin_frequencies
-      |> Map.keys()
-      |> Enum.filter(&(target_amount >= &1))
-      |> Enum.sort_by(&(-&1))
-      |> find_satisfying_change(coin_frequencies, target_amount)
-      |> Enum.reject(&Enum.empty?/1)
-      |> Enum.sort_by(&length/1)
-      |> List.first()
+    |> Map.keys()
+    |> Enum.filter(&(target_change >= &1))
+    |> Enum.sort_by(&(-&1))
+    |> find_satisfying_change(coin_frequencies, target_change)
+    |> Enum.reject(&Enum.empty?/1)
   end
 
   defp find_satisfying_change(coin_denominations, coin_frequencies, target_amount) do
@@ -101,6 +107,7 @@ defmodule Exvend.Service.SmartCashier do
          found_change
        )
        when remaining_amount >= coin_denomination do
+
     case Map.get(coin_frequencies, coin_denomination) do
       0 ->
         cashiers_change(remaining_coins, coin_frequencies, remaining_amount, found_change)
