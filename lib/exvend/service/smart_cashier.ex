@@ -107,7 +107,6 @@ defmodule Exvend.Service.SmartCashier do
          found_change
        )
        when remaining_amount >= coin_denomination do
-
     case Map.get(coin_frequencies, coin_denomination) do
       0 ->
         cashiers_change(remaining_coins, coin_frequencies, remaining_amount, found_change)

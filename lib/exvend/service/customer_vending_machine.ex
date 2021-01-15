@@ -114,7 +114,8 @@ defmodule Exvend.Service.CustomerVendingMachine do
     end
   end
 
-  @spec do_vend(vending_machine, stock_code, stock_location, coins, pos_integer) :: vending_machine_result
+  @spec do_vend(vending_machine, stock_code, stock_location, coins, pos_integer) ::
+          vending_machine_result
   defp do_vend(machine, _, _, _, change_required) when change_required < 0 do
     {{:insert_coins, abs(change_required)}, machine}
   end
