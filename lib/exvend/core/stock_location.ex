@@ -1,5 +1,7 @@
 defmodule Exvend.Core.StockLocation do
-  @moduledoc false
+  @moduledoc """
+  A location in the Vending Machine where stock can be placed.
+  """
 
   @typedoc """
   A price for a stock item

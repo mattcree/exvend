@@ -8,6 +8,7 @@ defmodule CustomerVendingMachineTest do
   @price 34
   @stock_code "A1"
   @unknown_stock_code "A2"
+  @sold_out_stock_code "A3"
   @stock_item "Cola"
   @coin_set [1, 2, 5, 10, 20, 50, 100, 200]
   @float [1, 1, 1, 1, 2, 20, 20, 20, 50, 100, 100]
@@ -24,12 +25,17 @@ defmodule CustomerVendingMachineTest do
       |> StockLocation.add_stock(@stock_item)
       |> StockLocation.add_stock(@stock_item)
 
+    empty_location = StockLocation.new(@price)
+
     coin_acceptor =
       CoinAcceptor.new()
       |> CoinAcceptor.configure_coin_set(@coin_set)
       |> CoinAcceptor.fill_float(@float)
 
-    inventory = Inventory.new() |> Inventory.create_stock_location(@stock_code, location)
+    inventory =
+      Inventory.new()
+      |> Inventory.create_stock_location(@stock_code, location)
+      |> Inventory.create_stock_location(@sold_out_stock_code, empty_location)
 
     machine =
       VendingMachine.new()
@@ -65,7 +71,14 @@ defmodule CustomerVendingMachineTest do
     assert message == {:returned, @valid_coins}
   end
 
-  test "should be able to vend selected product and receive change when vending" do
+  test "should be able to vend selected product and receive change when vending", %{
+    machine: machine
+  } do
+    {_, with_inserted} = machine |> CustomerVendingMachine.insert_coins(@inserted_coin)
+    {message, updated_machine} = with_inserted |> CustomerVendingMachine.vend(@stock_code)
+
+    assert message == {:item, "Cola", :change, [1, 1, 1, 1, 2, 20, 20, 20]}
+    assert updated_machine.coin_acceptor.float == [50, 100, 100, 100]
   end
 
   test "should inform when when change cannot be made and exact change is required", %{
@@ -84,19 +97,18 @@ defmodule CustomerVendingMachineTest do
     machine: machine
   } do
     {_, with_inserted} = machine |> CustomerVendingMachine.insert_coins(@inserted_coin)
-    {message, updated_machine} = with_inserted |> CustomerVendingMachine.vend(@stock_code)
-
-    assert message == {:item, "Cola", :change, [1, 1, 1, 1, 2, 20, 20, 20]}
-    assert updated_machine.coin_acceptor.float == [50, 100, 100, 100]
-  end
-
-  test "should inform when selected stock code is sold out", %{machine: machine} do
-    {_, with_inserted} = machine |> CustomerVendingMachine.insert_coins(@inserted_coin)
     {_, after_vending} = with_inserted |> CustomerVendingMachine.vend(@stock_code)
 
     {message, _} = after_vending |> CustomerVendingMachine.vend(@stock_code)
 
     assert message == {:insert_coins, 34}
+  end
+
+  test "should inform when selected stock code is sold out", %{machine: machine} do
+    {_, with_inserted} = machine |> CustomerVendingMachine.insert_coins(@inserted_coin)
+    {message, _} = with_inserted |> CustomerVendingMachine.vend(@sold_out_stock_code)
+
+    assert message == {:sold_out, "A3"}
   end
 
   test "should inform when selected stock code not found when vending", %{machine: machine} do

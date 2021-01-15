@@ -1,5 +1,7 @@
 defmodule Exvend.Core.VendingMachine do
-  @moduledoc false
+  @moduledoc """
+  The Vending Machine. Contains state of money and inventory.
+  """
 
   alias Exvend.Core.{CoinAcceptor, Inventory}
 

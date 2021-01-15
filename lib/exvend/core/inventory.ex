@@ -1,5 +1,7 @@
 defmodule Exvend.Core.Inventory do
-  @moduledoc false
+  @moduledoc """
+  The association between stock codes and their relates Stock Locations
+  """
 
   alias Exvend.Core.StockLocation
 
@@ -32,6 +34,6 @@ defmodule Exvend.Core.Inventory do
 
   @spec update_stock_location(inventory, stock_code, stock_location) :: inventory
   def update_stock_location(inventory, stock_code, %StockLocation{} = stock_location) do
-    Map.replace(inventory, stock_code, stock_location)
+    Map.put(inventory, stock_code, stock_location)
   end
 end

@@ -1,5 +1,7 @@
 defmodule Exvend.Core.CoinAcceptor do
-  @moduledoc false
+  @moduledoc """
+  The coin handling part of the vending machine. Contains the various coin related data.
+  """
 
   @typedoc """
   A set of coins representing the denominations of

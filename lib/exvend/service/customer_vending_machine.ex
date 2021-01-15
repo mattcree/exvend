@@ -22,21 +22,20 @@ defmodule Exvend.Service.CustomerVendingMachine do
   as well as the updated machine.
 
   ### Examples
+      iex> machine = Exvend.Service.EngineerVendingMachine.new_machine()
 
-  iex> machine = Exvend.Service.EngineerVendingMachine.new_machine()
+      iex> {_, with_coin_set} = Exvend.Service.EngineerVendingMachine.configure_coin_set(machine, [1,3,5])
 
-  iex> {_, with_coin_set} = Exvend.Service.EngineerVendingMachine.configure_coin_set(machine, [1,3,5])
-
-  iex> Exvend.Service.CustomerVendingMachine.insert_coins(with_coin_set,[1,2,3,4,5])
-  {{:returned, [2, 4], :inserted, [1, 3, 5]},
-  %Exvend.Core.VendingMachine{
-   coin_acceptor: %Exvend.Core.CoinAcceptor{
-     coin_set: #MapSet<[1, 3, 5]>,
-     float: [],
-     inserted: [1, 3, 5]
-   },
-   inventory: %{}
-  }}
+      iex> Exvend.Service.CustomerVendingMachine.insert_coins(with_coin_set,[1,2,3,4,5])
+      {{:returned, [2, 4], :inserted, [1, 3, 5]},
+      %Exvend.Core.VendingMachine{
+       coin_acceptor: %Exvend.Core.CoinAcceptor{
+         coin_set: #MapSet<[1, 3, 5]>,
+         float: [],
+         inserted: [1, 3, 5]
+       },
+       inventory: %{}
+      }}
   """
   @spec insert_coins(vending_machine, coins) :: vending_machine_result
   def insert_coins(%VendingMachine{coin_acceptor: coin_acceptor} = machine, coins) do
@@ -56,21 +55,21 @@ defmodule Exvend.Service.CustomerVendingMachine do
 
   ### Examples
 
-  iex> machine = Exvend.Service.EngineerVendingMachine.new_machine()
+      iex> machine = Exvend.Service.EngineerVendingMachine.new_machine()
 
-  iex> {_, with_coin_set} = Exvend.Service.EngineerVendingMachine.configure_coin_set(machine, [1,3,5])
+      iex> {_, with_coin_set} = Exvend.Service.EngineerVendingMachine.configure_coin_set(machine, [1,3,5])
 
-  iex> {_, with_inserted_coins} = Exvend.Service.CustomerVendingMachine.insert_coins(with_coin_set,[1,2,3,4,5])
+      iex> {_, with_inserted_coins} = Exvend.Service.CustomerVendingMachine.insert_coins(with_coin_set,[1,2,3,4,5])
 
-  iex> Exvend.Service.CustomerVendingMachine.return_coins(with_inserted_coins)
-  {{:returned, [1, 3, 5]},
-  %Exvend.Core.VendingMachine{
-   coin_acceptor: %Exvend.Core.CoinAcceptor{
-     coin_set: #MapSet<[1, 3, 5]>,
-     float: [],
-     inserted: []
-   },
-   inventory: %{}
+      iex> Exvend.Service.CustomerVendingMachine.return_coins(with_inserted_coins)
+      {{:returned, [1, 3, 5]},
+      %Exvend.Core.VendingMachine{
+       coin_acceptor: %Exvend.Core.CoinAcceptor{
+         coin_set: #MapSet<[1, 3, 5]>,
+         float: [],
+         inserted: []
+       },
+       inventory: %{}
   }}
   """
   @spec return_coins(vending_machine) :: vending_machine_result
@@ -95,11 +94,7 @@ defmodule Exvend.Service.CustomerVendingMachine do
 
   Otherwise the item and their change will be returned, along with the updated machine.
 
-  For detailed examples please look at the unit tests.
-
-  ### Examples
-
-
+  For detailed examples please look at the unit tests in `customer_vending_machine_test.exs`
   """
   @spec vend(vending_machine, stock_code) :: vending_machine_result
   def vend(machine, stock_code) do

@@ -36,8 +36,20 @@ defmodule Exvend.Service.SmartCashier do
 
 
   ### Examples
+      iex> Exvend.Service.SmartCashier.make_change([1, 1, 1, 1, 2, 20, 20, 20], 4)
+      [1, 1, 1, 1, 2, 20, 20, 20]
 
+      iex> Exvend.Service.SmartCashier.make_change([1, 1, 1, 1, 2, 20, 20, 20], 66)
+      [1, 1, 1, 1, 2, 20, 20, 20]
 
+      iex> Exvend.Service.SmartCashier.make_change([1, 1, 1, 1, 2, 20, 20, 20], 62)
+      [2, 20, 20, 20]
+
+      iex> Exvend.Service.SmartCashier.make_change([1, 1, 1, 1, 2, 20, 20, 20], 61)
+      [1, 20, 20, 20]
+
+      iex> Exvend.Service.SmartCashier.make_change([1, 1, 1, 1, 2, 20, 20, 20], 59)
+      nil
   """
   @spec make_change(coins, target_change) :: coins | nil
   def make_change(coins, target_amount) do
