@@ -99,7 +99,7 @@ This project was created to satisfy the following requirements gathered from the
 Create a Vending Machine that should
 - hold stock referenced by a code
 - added and remove stock referenced by a code
-- allow a user to select a product to purchase
+- allow a user to select a product to purchase using a code
 - accept coins
 - vend product when user has enough money
 - be configurable to support different currencies
@@ -124,11 +124,11 @@ The following assumptions were made
 4. Certain ordinary error cases should be handled including
    - Service engineer tries to create stock location that already exists
    - User tries to select an item that does not exist
-   - Item is sold out
+   - The item is sold out
    - etc.
 
 5. Real vending machines will accept all valid coins and return invalid coins, therefore rather than treat some invalid coins
-   in a batch as as an invalid input, instead it makes sense to insert the valid coins and return the invalid coins
+   in a batch as an invalid input, instead it makes sense to insert the valid coins and return the invalid coins
 6. Performance, while it is a concern of this exercise, is secondary to correctness. Coin floats are the main input to the
    coin change algorithm, and should only have sizes in the thousands at most, therefore performance should be reasonable even with a naive approach.
 6. When returning the smallest set of coins, the actual denominations do not matter. For example, given a coin set of `[1,2,3,4]` and a target change of `5`, it can be satisfied by `[1,4]` or `[2,3]` which are both the same size. It's assumed no particular ordering of these is important.
