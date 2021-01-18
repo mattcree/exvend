@@ -75,11 +75,11 @@ defmodule Exvend.Service.SmartCashier do
     satisfying_change(denominations, quantities, target, [])
   end
 
-  defp satisfying_change([], _, _, change), do: change
-  defp satisfying_change(denominations, quantities, target, change) do
-    new_change = create_change(denominations, quantities, target)
+  defp satisfying_change([], _, _, all_change), do: all_change
+  defp satisfying_change(denominations, quantities, target, all_change) do
+    change = create_change(denominations, quantities, target)
 
-    satisfying_change(tl(denominations), quantities, target, [new_change | change])
+    satisfying_change(tl(denominations), quantities, target, [change | all_change])
   end
 
   def create_change(denominations, quantities, target) do
@@ -88,6 +88,7 @@ defmodule Exvend.Service.SmartCashier do
 
   defp create_change([], _, _, _), do: []
   defp create_change(_, _, 0, change), do: change
+
   defp create_change([coin | coins] = denominations, quantities, remaining, change)
        when remaining >= coin do
 
