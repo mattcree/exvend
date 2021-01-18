@@ -11,7 +11,7 @@ Then, Customers can insert their coins, vend a product, or cancel the transactio
 Since submitting on 18/01/2021 I recognised that the coin change algorithm has a couple of problems.
 
 1. Mix format ruined the presentation (mainly due to my longer than idiomatic names)
-2. It does not try to skip any coins i.e. with a coin set of `[2, 3, 20]`
+2. It does not try to skip any coins inbetween coins which might yield change
    - i.e. for coins [2, 2, 3, 20] and target change of 24, it will not find it because it will attempt
      to make change with 20s, then 3s, then 2s, and cannot skip 3s.
 
@@ -19,7 +19,7 @@ When working with real coin denominations it is probably sufficient, but with ar
 
 I've therefore refactored the code to track dead end coins which do not yield a set of change.
 
-Furthermore, I think this is the wrong approach for this problem. I can't
+Furthermore, I think this might be the wrong approach for this problem. I can't
 guarantee this solves the minimum set sum problem posed by coin change, but will likely work in most cases with real coin denominations.
 
 ```elixir  
