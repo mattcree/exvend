@@ -61,69 +61,46 @@ defmodule Exvend.Service.SmartCashier do
 
   @spec make_possible_change(coins, target_change) :: list(coins)
   def make_possible_change(coins, target_change) do
-    coin_frequencies = Enum.frequencies(coins)
+    quantities = Enum.frequencies(coins)
 
-    coin_frequencies
+    quantities
     |> Map.keys()
     |> Enum.filter(&(target_change >= &1))
     |> Enum.sort_by(&(-&1))
-    |> find_satisfying_change(coin_frequencies, target_change)
+    |> satisfying_change(quantities, target_change)
     |> Enum.reject(&Enum.empty?/1)
   end
 
-  defp find_satisfying_change(coin_denominations, coin_frequencies, target_amount) do
-    find_satisfying_change(coin_denominations, coin_frequencies, target_amount, [])
+  defp satisfying_change(denominations, quantities, target) do
+    satisfying_change(denominations, quantities, target, [])
   end
 
-  defp find_satisfying_change([], _, _, change_combinations), do: change_combinations
+  defp satisfying_change([], _, _, change), do: change
+  defp satisfying_change(denominations, quantities, target, change) do
+    new_change = create_change(denominations, quantities, target)
 
-  defp find_satisfying_change(
-         coin_denominations,
-         coin_frequencies,
-         target_amount,
-         change_combinations
-       ) do
-    new_change = cashiers_change(coin_denominations, coin_frequencies, target_amount)
-
-    find_satisfying_change(
-      tl(coin_denominations),
-      coin_frequencies,
-      target_amount,
-      [new_change | change_combinations]
-    )
+    satisfying_change(tl(denominations), quantities, target, [new_change | change])
   end
 
-  def cashiers_change(coin_denominations, coin_frequencies, target_amount) do
-    cashiers_change(coin_denominations, coin_frequencies, target_amount, [])
+  def create_change(denominations, quantities, target) do
+    create_change(denominations, quantities, target, [])
   end
 
-  defp cashiers_change(_, _, 0, found_change), do: found_change
-  defp cashiers_change([], _, _, _), do: []
+  defp create_change([], _, _, _), do: []
+  defp create_change(_, _, 0, change), do: change
+  defp create_change([coin | coins] = denominations, quantities, remaining, change)
+       when remaining >= coin do
 
-  defp cashiers_change(
-         [coin_denomination | remaining_coins] = coin_denominations,
-         coin_frequencies,
-         remaining_amount,
-         found_change
-       )
-       when remaining_amount >= coin_denomination do
-    case Map.get(coin_frequencies, coin_denomination) do
+    case Map.get(quantities, coin) do
       0 ->
-        cashiers_change(remaining_coins, coin_frequencies, remaining_amount, found_change)
-
+        create_change(coins, quantities, remaining, change)
       frequency ->
-        updated_coin_frequencies = Map.put(coin_frequencies, coin_denomination, frequency - 1)
-
-        cashiers_change(
-          coin_denominations,
-          updated_coin_frequencies,
-          remaining_amount - coin_denomination,
-          [coin_denomination | found_change]
-        )
+        updated_quantities = Map.put(quantities, coin, frequency - 1)
+        create_change(denominations, updated_quantities, remaining - coin, [coin | change])
     end
   end
 
-  defp cashiers_change([_ | t], frequencies, remaining_amount, found_change) do
-    cashiers_change(t, frequencies, remaining_amount, found_change)
+  defp create_change(denominations, quantities, remaining, change) do
+    create_change(tl(denominations), quantities, remaining, change)
   end
 end
