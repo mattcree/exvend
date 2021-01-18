@@ -35,17 +35,4 @@ defmodule ChangeTest do
   test "should calculate change 4" do
     assert SmartCashier.make_change(@coins_four, @target_change_four) == @return_four
   end
-
-
-  #  test "should calculate possible change 1" do
-#    assert SmartCashier.make_possible_change([2,2,3,20], 24) == [2, 2, 20]
-#  end
-#
-#  test "should calculate possible change 2" do
-#    assert SmartCashier.make_possible_change(@coins_two, @return_two) == @target_two
-#  end
-#
-#  test "should calculate possible change 3" do
-#    assert SmartCashier.make_possible_change(@coins_three, @return_three) == @target_three
-#  end
 end

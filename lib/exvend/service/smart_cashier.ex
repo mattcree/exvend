@@ -70,7 +70,6 @@ defmodule Exvend.Service.SmartCashier do
     |> Enum.filter(&(target_change >= &1))
     |> Enum.sort_by(&(-&1))
     |> satisfying_change(quantities, target_change)
-    |> Enum.reject(&Enum.empty?/1)
   end
 
   defp satisfying_change(denominations, quantities, target) do
@@ -81,16 +80,26 @@ defmodule Exvend.Service.SmartCashier do
 
   defp satisfying_change(denominations, quantities, target, all_change) do
     case create_change(denominations, quantities, target) do
+      {[], []} ->
+        satisfying_change(tl(denominations), quantities, target, all_change)
+
       {change, []} ->
         satisfying_change(tl(denominations), quantities, target, [change | all_change])
-      {change, dead_ends} ->
-        dead_ends
-        |> Enum.reduce(change, fn coin, extra_change ->
-          denominations_without_dead_end = List.delete(denominations, coin)
 
-          extra_change ++ satisfying_change(denominations_without_dead_end, quantities, target)
-        end)
+      {[], dead_ends} ->
+        remove_dead_ends(dead_ends, denominations, quantities, target, all_change)
+
+      {change, dead_ends} ->
+        remove_dead_ends(dead_ends, denominations, quantities, target, [change | all_change])
     end
+  end
+
+  defp remove_dead_ends(dead_ends, denominations, quantities, target, all_change) do
+    dead_ends
+    |> Enum.reduce(
+      all_change,
+      &satisfying_change(List.delete(denominations, &1), quantities, target, &2)
+    )
   end
 
   defp create_change(denominations, quantities, target) do
@@ -98,17 +107,24 @@ defmodule Exvend.Service.SmartCashier do
   end
 
   defp create_change([], _, _, _, dead_ends), do: {[], dead_ends}
-  defp create_change(_, _, 0, change, dead_ends), do: {[change], dead_ends}
+  defp create_change(_, _, 0, change, dead_ends), do: {change, dead_ends}
 
   defp create_change([coin | coins] = denominations, quantities, remaining, change, dead_ends)
        when remaining >= coin do
-
     case Map.get(quantities, coin) do
       0 ->
         create_change(coins, quantities, remaining, change, dead_ends)
+
       frequency ->
         updated_quantities = Map.put(quantities, coin, frequency - 1)
-        create_change(denominations, updated_quantities, remaining - coin, [coin | change], dead_ends)
+
+        create_change(
+          denominations,
+          updated_quantities,
+          remaining - coin,
+          [coin | change],
+          dead_ends
+        )
     end
   end
 
