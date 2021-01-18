@@ -6,6 +6,45 @@ You can create a new machine, configure it with a coin set, stock, and manage th
 
 Then, Customers can insert their coins, vend a product, or cancel the transaction.
 
+# Notes on Changes
+
+Since submitting on 18/01/2021 I recognised that the coin change algorithm has a couple of problems.
+
+1. Mix format ruined the presentation (mainly due to my longer than idiomatic names)
+2. It does not try to skip any coins i.e. with a coin set of `[2, 3, 20]`
+   - i.e. for coins [2, 2, 3, 20] and target change of 24, it will not find it because it will attempt
+     to make change with 20s, then 3s, then 2s, and cannot skip 3s.
+
+When working with real coin denominations it is probably sufficient, but with arbitrary numbers it probably doesn't work in many cases.
+
+I've therefore refactored the code to track dead end coins which do not yield a set of change.
+
+Furthermore, I think this is the wrong approach for this problem. I can't
+guarantee this solves the minimum set sum problem posed by coin change, but will likely work in most cases with real coin denominations.
+
+```elixir  
+defp satisfying_change(denominations, quantities, target, all_change) do
+ case create_change(denominations, quantities, target) do
+   {change, []} ->
+     satisfying_change(tl(denominations), quantities, target, [change | all_change])
+   {change, dead_ends} ->
+     dead_ends
+     |> Enum.reduce(change, fn coin, extra_change ->
+       denominations_without_dead_end = List.delete(denominations, coin)
+
+       extra_change ++ satisfying_change(denominations_without_dead_end, quantities, target)
+     end)
+ end
+end
+```
+
+The change tracking dead-ends during change making, and recursively tries to make change with those dead ends removed.
+
+This has completely changed the likely worst case runtime dramatically.
+
+I believe it was O(n log n) before, but potentially quadratic now unfortunately. I will probably try to optimise this in my 
+own time, but suffice it to say it's not perfect :)
+
 # Getting Started
 
 ## Requirements
@@ -149,3 +188,6 @@ has suffered.
 4. Testing could be a bit more focused. I have tested many lower level modules which could probably be tested via the public API.
 I would like to have refactored the tests to use more fixtures so that they were not so repetitive and verbose, but they were primarily designed for 
 testing correctness, considering the assignment's time constraints, rather than long term maintainability which is ordinarily a concern of mine.
+
+5. Choosing to represent the float as a list of numbers means the algorithm is not well suited. The coin frequency map
+is probably the most space efficient way to store the coins for the algorithm I presented. I'd probably rewrite the float to be a map.

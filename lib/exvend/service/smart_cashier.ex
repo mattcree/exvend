@@ -26,6 +26,8 @@ defmodule Exvend.Service.SmartCashier do
         - Decrement target number by the denomination's size
       - If the coin availability is zero, move onto the next denomination
     - When the denomination is greater than the target, continue to the next denomination
+      - Track this coin in 'dead end' coins and try this whole process from the top, recursively,
+        removing each dead end coin from the original denominaions
     - If we find that the target is zero, we know we're finished and can return the change
     - If we find that the denominations list is empty, we know we've not found a grouping of coins that satisfies the target so we return an empty list
   - We remove empty results and sort by size (smallest first)
@@ -78,31 +80,39 @@ defmodule Exvend.Service.SmartCashier do
   defp satisfying_change([], _, _, all_change), do: all_change
 
   defp satisfying_change(denominations, quantities, target, all_change) do
-    change = create_change(denominations, quantities, target)
+    case create_change(denominations, quantities, target) do
+      {change, []} ->
+        satisfying_change(tl(denominations), quantities, target, [change | all_change])
+      {change, dead_ends} ->
+        dead_ends
+        |> Enum.reduce(change, fn coin, extra_change ->
+          denominations_without_dead_end = List.delete(denominations, coin)
 
-    satisfying_change(tl(denominations), quantities, target, [change | all_change])
+          extra_change ++ satisfying_change(denominations_without_dead_end, quantities, target)
+        end)
+    end
   end
 
   defp create_change(denominations, quantities, target) do
-    create_change(denominations, quantities, target, [])
+    create_change(denominations, quantities, target, [], [])
   end
 
-  defp create_change([], _, _, _), do: []
-  defp create_change(_, _, 0, change), do: change
+  defp create_change([], _, _, _, dead_ends), do: {[], dead_ends}
+  defp create_change(_, _, 0, change, dead_ends), do: {[change], dead_ends}
 
-  defp create_change([coin | coins] = denominations, quantities, remaining, change)
+  defp create_change([coin | coins] = denominations, quantities, remaining, change, dead_ends)
        when remaining >= coin do
 
     case Map.get(quantities, coin) do
       0 ->
-        create_change(coins, quantities, remaining, change)
+        create_change(coins, quantities, remaining, change, dead_ends)
       frequency ->
         updated_quantities = Map.put(quantities, coin, frequency - 1)
-        create_change(denominations, updated_quantities, remaining - coin, [coin | change])
+        create_change(denominations, updated_quantities, remaining - coin, [coin | change], dead_ends)
     end
   end
 
-  defp create_change(denominations, quantities, remaining, change) do
-    create_change(tl(denominations), quantities, remaining, change)
+  defp create_change([coin | coins], quantities, remaining, change, dead_ends) do
+    create_change(coins, quantities, remaining, change, [coin | dead_ends])
   end
 end
