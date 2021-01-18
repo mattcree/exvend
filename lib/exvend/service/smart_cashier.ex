@@ -76,13 +76,14 @@ defmodule Exvend.Service.SmartCashier do
   end
 
   defp satisfying_change([], _, _, all_change), do: all_change
+
   defp satisfying_change(denominations, quantities, target, all_change) do
     change = create_change(denominations, quantities, target)
 
     satisfying_change(tl(denominations), quantities, target, [change | all_change])
   end
 
-  def create_change(denominations, quantities, target) do
+  defp create_change(denominations, quantities, target) do
     create_change(denominations, quantities, target, [])
   end
 
