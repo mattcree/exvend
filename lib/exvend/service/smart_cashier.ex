@@ -5,6 +5,12 @@ defmodule Exvend.Service.SmartCashier do
 
   @type target_change :: pos_integer
   @type coins :: list(pos_integer)
+  @type change_combinations :: list(coins)
+
+  @typedoc """
+  This maps a particular coin denomination to the number of times it appears
+  """
+  @type coin_quantities :: map()
 
   @doc """
   The main coin change algorithm used to compute
@@ -56,69 +62,72 @@ defmodule Exvend.Service.SmartCashier do
   @spec make_change(coins, target_change) :: coins | nil
   def make_change(coins, target_change) do
     coins
-    |> make_possible_change(target_change)
+    |> minimum_subset_sums(target_change)
     |> Enum.sort_by(&length/1)
     |> List.first()
   end
 
-  @spec make_possible_change(coins, target_change) :: list(coins)
-  def make_possible_change(coins, target_change) do
-    quantities = Enum.frequencies(coins)
+  @spec minimum_subset_sums(coins, target_change) :: change_combinations
+  def minimum_subset_sums(coins, target_change) when is_list(coins) do
+    coins
+    |> Enum.frequencies()
+    |> minimum_subset_sums(target_change)
+  end
 
-    quantities
+  @spec minimum_subset_sums(coin_quantities, target_change) :: change_combinations
+  def minimum_subset_sums(coin_quantities, target_change) when is_map(coin_quantities) do
+    coin_quantities
     |> Map.keys()
-    |> Enum.filter(&(target_change >= &1))
-    |> Enum.sort_by(&(-&1))
-    |> satisfying_change(quantities, target_change)
+    |> Enum.filter(&target_change >= &1)
+    |> Enum.sort_by(&-&1)
+    |> minimum_subset_sums(coin_quantities, target_change, [])
   end
 
-  defp satisfying_change(denominations, quantities, target) do
-    satisfying_change(denominations, quantities, target, [])
-  end
+  defp minimum_subset_sums([], _, _, all_change), do: all_change
 
-  defp satisfying_change([], _, _, all_change), do: all_change
-
-  defp satisfying_change(denominations, quantities, target, all_change) do
-    case create_change(denominations, quantities, target) do
+  defp minimum_subset_sums(denominations, quantities, target, all_change) do
+    case find_subset_sum(denominations, quantities, target) do
       {[], []} ->
-        satisfying_change(tl(denominations), quantities, target, all_change)
+        minimum_subset_sums(tl(denominations), quantities, target, all_change)
 
-      {change, []} ->
-        satisfying_change(tl(denominations), quantities, target, [change | all_change])
+      {new_change, []} ->
+        minimum_subset_sums(tl(denominations), quantities, target, [new_change | all_change])
 
       {[], dead_ends} ->
-        remove_dead_ends(dead_ends, denominations, quantities, target, all_change)
+        minimum_subset_sums_without_dead_ends(dead_ends, denominations, quantities, target, all_change)
 
-      {change, dead_ends} ->
-        remove_dead_ends(dead_ends, denominations, quantities, target, [change | all_change])
+      {new_change, dead_ends} ->
+        minimum_subset_sums_without_dead_ends(dead_ends, denominations, quantities, target, [new_change | all_change])
     end
   end
 
-  defp remove_dead_ends(dead_ends, denominations, quantities, target, all_change) do
+  defp minimum_subset_sums_without_dead_ends(dead_ends, denominations, quantities, target, all_change) do
     dead_ends
-    |> Enum.reduce(
-      all_change,
-      &satisfying_change(List.delete(denominations, &1), quantities, target, &2)
-    )
+    |> Enum.reduce(all_change, &minimum_subset_sums(List.delete(denominations, &1), quantities, target, &2))
   end
 
-  defp create_change(denominations, quantities, target) do
-    create_change(denominations, quantities, target, [], [])
+  defp find_subset_sum(denominations, quantities, target) do
+    find_subset_sum(denominations, quantities, target, [], [])
   end
 
-  defp create_change([], _, _, _, dead_ends), do: {[], dead_ends}
-  defp create_change(_, _, 0, change, dead_ends), do: {change, dead_ends}
+  defp find_subset_sum([], _, _, _, dead_ends), do: {[], dead_ends}
+  defp find_subset_sum(_, _, 0, change, dead_ends), do: {change, dead_ends}
 
-  defp create_change([coin | coins] = denominations, quantities, remaining, change, dead_ends)
-       when remaining >= coin do
+  defp find_subset_sum([coin | coins] = denominations, quantities, remaining, change, dead_ends) when coin <= remaining do
     case Map.get(quantities, coin) do
       0 ->
-        create_change(coins, quantities, remaining, change, dead_ends)
+        find_subset_sum(
+          coins,
+          quantities,
+          remaining,
+          change,
+          dead_ends
+        )
 
-      frequency ->
-        updated_quantities = Map.put(quantities, coin, frequency - 1)
+      quantity ->
+        updated_quantities = Map.put(quantities, coin, quantity - 1)
 
-        create_change(
+        find_subset_sum(
           denominations,
           updated_quantities,
           remaining - coin,
@@ -128,7 +137,12 @@ defmodule Exvend.Service.SmartCashier do
     end
   end
 
-  defp create_change([coin | coins], quantities, remaining, change, dead_ends) do
-    create_change(coins, quantities, remaining, change, [coin | dead_ends])
+  # This clause tracks coins which we have used but do not yield any change, as dead ends
+  defp find_subset_sum([coin | coins], quantities, remaining, [last_coin | _] = change, dead_ends) when last_coin == coin do
+    find_subset_sum(coins, quantities, remaining, change, [coin | dead_ends])
+  end
+
+  defp find_subset_sum([_ | coins], quantities, remaining, change, dead_ends) do
+    find_subset_sum(coins, quantities, remaining, change, dead_ends)
   end
 end

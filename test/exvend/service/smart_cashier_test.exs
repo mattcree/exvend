@@ -35,4 +35,16 @@ defmodule ChangeTest do
   test "should calculate change 4" do
     assert SmartCashier.make_change(@coins_four, @target_change_four) == @return_four
   end
+
+  test "should return nil when coins list is empty" do
+    assert SmartCashier.make_change([], @target_change_four) == nil
+  end
+
+  @tag timeout: 120_000_000
+  test "should calculate change 6" do
+    coins = 1..1000 |> Enum.to_list |> List.duplicate(100) |> List.flatten
+    {time, output} = :timer.tc(SmartCashier, :make_change, [coins, 5432100])
+    IO.inspect time
+    IO.inspect Enum.sum(output)
+  end
 end
