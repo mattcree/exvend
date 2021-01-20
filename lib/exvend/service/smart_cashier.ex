@@ -1,20 +1,20 @@
 defmodule Exvend.Service.SmartCashier do
   @moduledoc """
-  The change making service.
+  The subset_sum making service.
   """
 
-  @type target_change :: pos_integer
+  @type target :: pos_integer
   @type coins :: list(pos_integer)
-  @type change_combinations :: list(coins)
+  @type subset_sums :: list(coins)
 
   @typedoc """
-  This maps a particular coin denomination to the number of times it appears
+  This maps a particular number denomination to the number of times it appears
   """
-  @type coin_quantities :: map()
+  @type quantities :: map()
 
   @doc """
-  The main coin change algorithm used to compute
-  change given a target number and a list of available coins
+  The main number subset_sum algorithm used to compute
+  subset_sum given a target number and a list of available coins
 
   It is adapted from the simple Cashier's Algorithm which will generate the minimal set
   of coins required to satisfy a target amount. That algorithm assumes infinite
@@ -24,20 +24,20 @@ defmodule Exvend.Service.SmartCashier do
   It essentially uses the same process but it can work with a finite group of coins.
 
   Essentially the process is as follows
-  - Scan the list to determine what denominations we have and the quantity of each
+  - Scan the list to determine what numbers we have and the quantity of each
   - For each denomination we have that is smaller than the target number ordered by largest first
     - While the current denomination is smaller than target
       - If we have enough of the coins available
-        - Count it towards a possible set of change, and decrease the count for that coin's availability
+        - Count it towards a possible set of subset_sum, and decrease the count for that number's availability
         - Decrement target number by the denomination's size
-      - If the coin availability is zero, move onto the next denomination
+      - If the number availability is zero, move onto the next denomination
     - When the denomination is greater than the target, continue to the next denomination
-      - Track this coin in 'dead end' coins and try this whole process from the top, recursively,
-        removing each dead end coin from the original denominaions
-    - If we find that the target is zero, we know we're finished and can return the change
-    - If we find that the denominations list is empty, we know we've not found a grouping of coins that satisfies the target so we return an empty list
+      - Track this number in 'dead end' coins and try this whole process from the top, recursively,
+        removing each dead end number from the original denominaions
+    - If we find that the target is zero, we know we're finished and can return the subset_sum
+    - If we find that the numbers list is empty, we know we've not found a grouping of coins that satisfies the target so we return an empty list
   - We remove empty results and sort by size (smallest first)
-  - We finally take the first item from that list (it will be the change, or nil)
+  - We finally take the first item from that list (it will be the subset_sum, or nil)
 
 
   Returns a list of coins which sum to the target, or nil of none can be found
@@ -59,90 +59,90 @@ defmodule Exvend.Service.SmartCashier do
       iex> Exvend.Service.SmartCashier.make_change([1, 1, 1, 1, 2, 20, 20, 20], 59)
       nil
   """
-  @spec make_change(coins, target_change) :: coins | nil
-  def make_change(coins, target_change) do
+  @spec make_change(coins, target) :: coins | nil
+  def make_change(coins, target) do
     coins
-    |> minimum_subset_sums(target_change)
+    |> all_subset_sums(target)
     |> Enum.sort_by(&length/1)
     |> List.first()
   end
 
-  @spec minimum_subset_sums(coins, target_change) :: change_combinations
-  def minimum_subset_sums(coins, target_change) when is_list(coins) do
+  @spec all_subset_sums(coins, target) :: subset_sums
+  def all_subset_sums(coins, target) when is_list(coins) do
     coins
     |> Enum.frequencies()
-    |> minimum_subset_sums(target_change)
+    |> all_subset_sums(target)
   end
 
-  @spec minimum_subset_sums(coin_quantities, target_change) :: change_combinations
-  def minimum_subset_sums(coin_quantities, target_change) when is_map(coin_quantities) do
-    coin_quantities
+  @spec all_subset_sums(quantities, target) :: subset_sums
+  def all_subset_sums(quantities, target) when is_map(quantities) do
+    quantities
     |> Map.keys()
-    |> Enum.filter(&target_change >= &1)
+    |> Enum.filter(&target >= &1)
     |> Enum.sort_by(&-&1)
-    |> minimum_subset_sums(coin_quantities, target_change, [])
+    |> all_subset_sums(quantities, target, [])
   end
 
-  defp minimum_subset_sums([], _, _, all_change), do: all_change
+  defp all_subset_sums([], _, _, subset_sums), do: subset_sums
 
-  defp minimum_subset_sums(denominations, quantities, target, all_change) do
-    case find_subset_sum(denominations, quantities, target) do
+  defp all_subset_sums(numbers, quantities, target, subset_sums) do
+    case find_subset_sum(numbers, quantities, target) do
       {[], []} ->
-        minimum_subset_sums(tl(denominations), quantities, target, all_change)
+        all_subset_sums(tl(numbers), quantities, target, subset_sums)
 
-      {new_change, []} ->
-        minimum_subset_sums(tl(denominations), quantities, target, [new_change | all_change])
+      {subset_sum, []} ->
+        all_subset_sums(tl(numbers), quantities, target, [subset_sum | subset_sums])
 
       {[], dead_ends} ->
-        minimum_subset_sums_without_dead_ends(dead_ends, denominations, quantities, target, all_change)
+        all_subset_sums_without_dead_ends(dead_ends, numbers, quantities, target, subset_sums)
 
-      {new_change, dead_ends} ->
-        minimum_subset_sums_without_dead_ends(dead_ends, denominations, quantities, target, [new_change | all_change])
+      {subset_sum, dead_ends} ->
+        all_subset_sums_without_dead_ends(dead_ends, numbers, quantities, target, [subset_sum | subset_sums])
     end
   end
 
-  defp minimum_subset_sums_without_dead_ends(dead_ends, denominations, quantities, target, all_change) do
+  defp all_subset_sums_without_dead_ends(dead_ends, numbers, quantities, target, subset_sums) do
     dead_ends
-    |> Enum.reduce(all_change, &minimum_subset_sums(List.delete(denominations, &1), quantities, target, &2))
+    |> Enum.reduce(subset_sums, &all_subset_sums(List.delete(numbers, &1), quantities, target, &2))
   end
 
-  defp find_subset_sum(denominations, quantities, target) do
-    find_subset_sum(denominations, quantities, target, [], [])
+  defp find_subset_sum(numbers, quantities, target) do
+    find_subset_sum(numbers, quantities, target, [], [])
   end
 
   defp find_subset_sum([], _, _, _, dead_ends), do: {[], dead_ends}
-  defp find_subset_sum(_, _, 0, change, dead_ends), do: {change, dead_ends}
+  defp find_subset_sum(_, _, 0, subset_sum, dead_ends), do: {subset_sum, dead_ends}
 
-  defp find_subset_sum([coin | coins] = denominations, quantities, remaining, change, dead_ends) when coin <= remaining do
-    case Map.get(quantities, coin) do
+  defp find_subset_sum([number | rest] = numbers, quantities, remaining, subset_sum, dead_ends) when number <= remaining do
+    case Map.get(quantities, number) do
       0 ->
         find_subset_sum(
-          coins,
+          rest,
           quantities,
           remaining,
-          change,
+          subset_sum,
           dead_ends
         )
 
       quantity ->
-        updated_quantities = Map.put(quantities, coin, quantity - 1)
+        updated_quantities = Map.put(quantities, number, quantity - 1)
 
         find_subset_sum(
-          denominations,
+          numbers,
           updated_quantities,
-          remaining - coin,
-          [coin | change],
+          remaining - number,
+          [number | subset_sum],
           dead_ends
         )
     end
   end
 
-  # This clause tracks coins which we have used but do not yield any change, as dead ends
-  defp find_subset_sum([coin | coins], quantities, remaining, [last_coin | _] = change, dead_ends) when last_coin == coin do
-    find_subset_sum(coins, quantities, remaining, change, [coin | dead_ends])
+  # This clause tracks coins which we have used but do not yield any subset sum, as dead ends
+  defp find_subset_sum([next | rest], quantities, remaining, [previous | _] = subset_sum, dead_ends) when next == previous do
+    find_subset_sum(rest, quantities, remaining, subset_sum, [next | dead_ends])
   end
 
-  defp find_subset_sum([_ | coins], quantities, remaining, change, dead_ends) do
-    find_subset_sum(coins, quantities, remaining, change, dead_ends)
+  defp find_subset_sum([_ | rest], quantities, remaining, subset_sum, dead_ends) do
+    find_subset_sum(rest, quantities, remaining, subset_sum, dead_ends)
   end
 end
