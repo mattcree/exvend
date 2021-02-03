@@ -1,8 +1,8 @@
-defmodule SmartCashierTest do
+defmodule SmarterCashierTest do
   @moduledoc false
 
   use ExUnit.Case
-  alias Exvend.Service.SmartCashier
+  alias Exvend.Service.SmarterCashier
 
   @coins_one [1, 1, 1, 1, 2, 20, 20, 20, 50, 100, 100]
   @target_change_one 66
@@ -21,22 +21,22 @@ defmodule SmartCashierTest do
   @return_four [2, 2, 20]
 
   test "should calculate change 1" do
-    assert SmartCashier.make_change(@coins_one, @target_change_one) == @return_one
+    assert SmarterCashier.make_change(@coins_one, @target_change_one) == @return_one
   end
 
   test "should calculate change 2" do
-    assert SmartCashier.make_change(@coins_two, @target_change_two) == @return_two
+    assert SmarterCashier.make_change(@coins_two, @target_change_two) == @return_two
   end
 
   test "should calculate change 3" do
-    assert SmartCashier.make_change(@coins_three, @target_change_three) == @return_three
+    assert SmarterCashier.make_change(@coins_three, @target_change_three) == @return_three
   end
 
   test "should calculate change 4" do
-    assert SmartCashier.make_change(@coins_four, @target_change_four) == @return_four
+    assert SmarterCashier.make_change(@coins_four, @target_change_four) == @return_four
   end
 
   test "should return nil when coins list is empty" do
-    assert SmartCashier.make_change([], @target_change_four) == nil
+    assert SmarterCashier.make_change([], @target_change_four) == nil
   end
 end
