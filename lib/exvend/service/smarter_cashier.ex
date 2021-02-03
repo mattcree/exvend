@@ -15,11 +15,11 @@ defmodule Exvend.Service.SmarterCashier do
     |> minimum_set_sum([], target)
   end
 
-  def minimum_set_sum(_, sum_so_far, remaining) when remaining == 0 do
+  def minimum_set_sum(_numbers, sum_so_far, remaining) when remaining == 0 do
     sum_so_far
   end
 
-  def minimum_set_sum(numbers, _, remaining) when remaining < 0 or numbers == [] do
+  def minimum_set_sum(numbers, _sum_so_far, remaining) when remaining < 0 or numbers == [] do
     nil
   end
 
